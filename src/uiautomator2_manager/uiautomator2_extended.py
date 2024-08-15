@@ -13,16 +13,15 @@ from my_decorator import debug, retry, exception_handler
 
 
 class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
-    @debug(head="当前页面为：", print_flag=True)
-    def get_current_page(self):
-        # 使用dump_hierarchy方法获取当前页面的内容，并将其存储在page_content变量中
-        page_content = self.driver.dump_hierarchy()
-        # 调用digraph对象的compute_page_trust_score方法，并传入page_content作为参数
-        # compute_page_trust_score方法将计算并返回信任分数最高的页面名
-        return self.digraph.compute_page_trust_score(page_content)
+    # @debug(head="当前页面为：", print_flag=True)
+    # def get_current_page(self):
+    #     # 使用dump_hierarchy方法获取当前页面的内容，并将其存储在page_content变量中
+    #     page_content = self.driver.dump_hierarchy()
+    #     # 调用digraph对象的compute_page_trust_score方法，并传入page_content作为参数
+    #     # compute_page_trust_score方法将计算并返回信任分数最高的页面名
+    #     return self.digraph.compute_page_trust_score(page_content)
 
     # @retry(retries=2)
-    # @exception_handler
     def go_to_page(self, *args):
         """
         跳转到指定页面，处理必要的交互。
@@ -53,7 +52,7 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
                 content = args[0]
                 args = args[1:]  # 移除已使用的参数
             # 执行点击或输入操作
-            print("*" * 20, args, content)
+            print('#' * 50, step, content)
             self.click_or_input(step, content)
 
     def exists_element(self, selector="text", value=None):
@@ -91,8 +90,8 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
 
 
 if __name__ == '__main__':
-    d = Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '好威智')
+    d = Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     while True:
         pageName = input('请手动跳转页面，并输出页面名称：')
-        d.getAllElement(pageName)
-        # d.get_current_page()
+        # d.getAllElement(pageName)
+        d.get_current_page()

@@ -142,7 +142,6 @@ class AppFlowGraph:
                 score_dict[pageName] = 0
                 # 遍历当前页面名下的每个元素
             for element in element_list:
-                # 打印当前元素，用于调试
                 # print(element)
                 # 遍历属性列表中的每个属性
                 for attr in attribute_list:
@@ -150,14 +149,14 @@ class AppFlowGraph:
                     # print(element[attr])
                     # 判断当前元素的属性值是否等于它自身（这里实际是多余的，因为任何值都等于自身）
                     # 并且属性值是否出现在传入的page_source字符串中
-                    if element[attr] == element[attr] and element[attr] in page_content:
+                    if element.get(attr) and element.get(attr) == element.get(attr) and element.get(attr) in page_content:
                         # 如果满足条件，则增加当前页面的信任分数，分数增加的值来自元素的'置信度'属性
                         # 注意：这里假设元素字典中包含'置信度'这个键，否则将会引发KeyError
                         score_dict[pageName] += element['置信度']
                         # 打印score_dict，用于调试或查看结果
         print(score_dict)
-        if max(score_dict.values()) <= 5:
-            # 分数小于等于5，则返回错误
+        if max(score_dict.values()) <= 30:
+            # 分数小于等于30，则返回错误
             raise Exception("检测页面出错")
         # 返回分数最高的页面名
         return max(score_dict, key=lambda k: score_dict[k])
@@ -165,14 +164,17 @@ class AppFlowGraph:
 
 if __name__ == '__main__':
     from uiautomator2_automation_module import UiAutomator2TestDriver
-    from config_module import ConfigManagerHOLOZ as config
+    from config_module import ConfigManagerRUIBOSHI as config
 
     @timer
     def demo():
-        dev = UiAutomator2TestDriver('H675FIS8JJU8AMWW', '好威智')
+        # dev = UiAutomator2TestDriver('H675FIS8JJU8AMWW', '睿博士')
         G = AppFlowGraph(config)
         # G.show_directed_graph_visualization()
-        G.get_shortest_path_for_app_pages('首页', '蓝牙-设备连接中')
-
+        print(G.page_element_adj.getPageName())
+        # G.get_shortest_path_for_app_pages('首页', '添加设备')
+        # G.get_shortest_path_for_app_pages('添加设备', 'AP热点配网')
+        # G.get_shortest_path_for_app_pages('AP热点配网', 'WLAN')
+        G.get_shortest_path_for_app_pages('WLAN', '设备连接中')
 
     demo()

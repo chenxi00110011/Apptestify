@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 -
-Author:
-Date:2024年3月30日
+Author: chenxi
+Date: 2024年3月30日
 """
 
-# -*- coding: utf-8 -*-
 import pandas as pd
 
 
@@ -153,6 +152,7 @@ def filter_df_and_write_excel(df: dict, filter_column: str, filter_value: str, o
 
 if __name__ == '__main__':
     # al = AdjacencyListHandler(conf.PAGE_ELEMENT_FILE_PATH, conf.ADJACENCY_LIST)
+
     # # print(al.AL_dataFrame.to_dict('records'))
     # # print(al.AL_dataFrame.columns)
     # # print(al.getPageName())
