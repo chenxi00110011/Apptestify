@@ -175,6 +175,6 @@ if __name__ == '__main__':
         # G.get_shortest_path_for_app_pages('首页', '添加设备')
         # G.get_shortest_path_for_app_pages('添加设备', 'AP热点配网')
         # G.get_shortest_path_for_app_pages('AP热点配网', 'WLAN')
-        G.get_shortest_path_for_app_pages('WLAN', '设备连接中')
-
+        G.get_shortest_path_for_app_pages('首页', '蓝牙-设备连接中')
+        G.get_shortest_path_for_app_pages('蓝牙-设备连接中', '设备添加成功')
     demo()

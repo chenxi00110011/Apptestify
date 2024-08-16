@@ -94,7 +94,7 @@ def screenshot(shot_path=None):
             create_folder_if_not_exists(file_path)
             file_path = file_path + f'//{ntp_util.timestamp_to_date()}'
             create_folder_if_not_exists(file_path)
-            filename = ntp_util.timestamp_to_date(format="%H-%M-%S") + f'-{wakeup_time}秒' + '.PNG'
+            filename = ntp_util.timestamp_to_date(format="%H-%M-%S") + f'-{wakeup_time}' + '.PNG'
             # 执行手机截屏命令
             os.system(adb.execute_command(result.androidDeviceID, adb.SCREEN_SHOOT))
             os.system(

@@ -1,2 +1,3 @@
 import os
-os.system('pytest -vs test_scan_qr.py')
+
+os.system('pytest -vs -k test_bing_bluetooth')

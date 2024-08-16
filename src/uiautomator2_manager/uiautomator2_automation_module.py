@@ -61,8 +61,9 @@ class UiAutomator2TestDriver:
     def start_watcher(self):
         # 启用监听器
         # 监听手机重启后，弹出的USB传输选项
-        self.driver.watcher.when("传输文件 / Android Auto").click()
-        self.driver.watcher.start(1.0)
+        self.driver.watcher("usb启动").when("传输文件 / Android Auto").click()
+        self.driver.watcher("Wi-Fi网络信号差").when("不允许").click()
+        self.driver.watcher.start()
 
     # @printer
     def localize_element(self, localization_method, edges) -> _selector.UiObject:
@@ -137,7 +138,7 @@ class UiAutomator2TestDriver:
                     found = True
                 else:
                     # 找不到元素的时候，滑动，此时页面更新
-                    self.driver.swipe_ext('up', scale=0.8, duration=0.1)
+                    self.driver.swipe_ext('up', scale=0.5, duration=0.25)
                     time.sleep(2)
                     # 更新old 的值。用new 的值更新old 的值
                     old_page = new_page
@@ -182,15 +183,18 @@ class UiAutomator2TestDriver:
             raise Exception("单选按钮未提供content")
 
     @timer
-    def stayUntilJumpToNewPage(self, step, timeout=None):
-        if timeout is None and step.get('默认值') == step.get('默认值') and step.get('默认值'):
+    def stayUntilJumpToNewPage(self, step):
+        if step.get('默认值') == step.get('默认值') and step.get('默认值'):
             timeout = step['默认值']
         else:
             timeout = 10
         timeout = int(timeout)
-        for i in range(timeout):
-            if self.get_current_page() != step['页面名称']:
-                break
+        start_time = time.time()
+        # 检查页面是否存在文本
+        while self.exists_element(selector='text', value=step.get('text')) or timeout >= 0:
+            timeout -= 1
+        end_time = time.time()
+        self.title['wakeup_time'] = "{:.1f}秒".format(end_time - start_time)
 
     @print_current_time
     @screenshot(shot_path=rf"C:\Users\Administrator\Desktop\video\截图")
@@ -205,6 +209,14 @@ class UiAutomator2TestDriver:
         """
         print("手机截图")
         return self
+
+    def exists_element(self, selector="text", value=None):
+        global ui_object
+        if selector == "text":
+            ui_object = self.driver(text=value)
+        elif selector == "resourceId":
+            ui_object = self.driver(text=value)
+        return ui_object.exists(timeout=0.2)
 
     def get_closest_element(self, text: str, elements, mode=None) -> _selector.UiObject:
         """
@@ -239,17 +251,23 @@ class UiAutomator2TestDriver:
 
         elem1 = self.localize_element(localization_method='text', edges={'text': text})
         coord1 = get_element_center_coordinates(elem1)
+        coord2 = None
         elem_coordinate = {}
         for elem2 in elements:
             # 获取元素的坐标
+            print("-" * 10, ">走这")
             coord2 = get_element_center_coordinates(elem2)
             # 模式是向下查找，并且元素的Y轴坐标小于锚点
-            if mode == 'DOWN' and coord2[1] - coord1[1] < -10:
+            if mode == 'DOWN' and coord2[1] - coord1[1] < -50:
                 continue
             # 模式是向上查找，并且元素的Y轴坐标大于锚点
-            elif mode == 'UP' and coord2[1] - coord1[1] > 10:
+            elif mode == 'UP' and coord2[1] - coord1[1] > 50:
                 continue
             elem_coordinate[elem2] = calculate_distance_between_coordinates(coord1, coord2)
+
+        print("coord1, coord2: ", coord1, coord2)
+        print("elements: ", elements)
+        print("elem_coordinate: ", elem_coordinate)
         min_key = min(elem_coordinate, key=lambda k: elem_coordinate[k])
         return min_key
 
@@ -259,6 +277,14 @@ class UiAutomator2TestDriver:
             self.localize_element(localization_method='text', edges={'text': content})
             # 收集所有符合条件的控件
             localized_elements = self.localize_element(localization_method="resource-id", edges=selection_criteria)
+
+            # 检查localized_elements是否为None
+            if not localized_elements:
+                return
+            # 检查localized_elements是否为list，不是就放到list中
+            elif not isinstance(localized_elements, list):
+                localized_elements = list(localized_elements)
+
             # 定位离content文字最近的控件
             closest_element = self.get_closest_element(text=content, elements=localized_elements, mode='DOWN')
             # print(closest_element)

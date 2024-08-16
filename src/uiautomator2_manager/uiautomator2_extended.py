@@ -26,8 +26,8 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
         """
         跳转到指定页面，处理必要的交互。
         """
-        # 关闭广告（如果有的话）
-        # self.close_popup()
+        # 监听弹窗
+        self.start_watcher()
 
         # 获取当前页面名称
         current_page_name = self.get_current_page()
@@ -55,13 +55,8 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
             print('#' * 50, step, content)
             self.click_or_input(step, content)
 
-    def exists_element(self, selector="text", value=None):
-        global ui_object
-        if selector == "text":
-            ui_object = self.driver(text=value)
-        elif selector == "resourceId":
-            ui_object = self.driver(text=value)
-        return ui_object.exists(timeout=0.2)
+        # 停止监听 弹窗
+        self.driver.watcher.stop()
 
     def getAllElement(self, pageName):
         # 初始化一个字典，其键是表头，值是空列表
