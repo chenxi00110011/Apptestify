@@ -5,10 +5,10 @@ from lxml import etree
 d = u2.connect()
 
 # 定义一个函数来查找元素
-def find_elements(root, text, by="text"):
+def find_elements(root, text):
     elems = []
     for elem in root.iter():
-        if by in elem.attrib and elem.attrib[by] == text:
+        if 'text' in elem.attrib and elem.attrib['text'] == text:
             elems.append(elem)
 
     return elems
@@ -44,7 +44,7 @@ def calculate_level_difference(element1, element2):
         return -1  # 如果没有共同祖先节点，返回-1表示无法计算层级差
 
 
-def get_level_differences(d, element1_text, element2_text, by):
+def get_level_differences(d, element1_text, element2_text):
     """获取指定文本的两个元素之间的层级差列表"""
     # 获取当前屏幕的层次结构
     hierarchy = d.dump_hierarchy()
@@ -62,7 +62,7 @@ def get_level_differences(d, element1_text, element2_text, by):
         return []
 
     # 查找第二个元素
-    elements2 = find_elements(root, element2_text, by)
+    elements2 = find_elements(root, element2_text)
     if not elements2:
         print(f"未能找到包含文本 '{element2_text}' 的元素")
         return []
@@ -78,18 +78,17 @@ def get_level_differences(d, element1_text, element2_text, by):
                 print("无法计算两个节点之间的层级差（没有共同的祖先节点）")
 
     # 返回层级最小元素的下标
-    # print(level_diffs)
     return level_diffs.index(min(level_diffs))
 
 
 if __name__ == "__main__":
 
     element1_text = "355259"
-    element2_text = "com.zwcode.p6slite:id/item_device_play"
+    element2_text = "消息"
 
-    level_diffs = get_level_differences(d, element1_text, element2_text, "resource-id")
+    level_diffs = get_level_differences(d, element1_text, element2_text)
 
-    if level_diffs is not None:
+    if level_diffs:
         print(f"下标为 {level_diffs}的元素")
     else:
         print("没有找到有效的层级差")
