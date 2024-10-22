@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 """
+模块功能：直播拉流测试
 -
 Author:
 Date:
 """
 import time
-import os
-import schedule
-import threading
-
 from uiautomator2_extended import Uiautomator2SophisticatedExecutor
 from uiautomator2_manager import uiautomator2_extended
 import pytest

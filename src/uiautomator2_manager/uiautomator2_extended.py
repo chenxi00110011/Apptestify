@@ -88,5 +88,5 @@ if __name__ == '__main__':
     d = Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     while True:
         pageName = input('请手动跳转页面，并输出页面名称：')
-        # d.getAllElement(pageName)
-        d.get_current_page()
+        d.getAllElement(pageName)
+        # d.get_current_page()
