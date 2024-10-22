@@ -61,9 +61,9 @@ class ConfigManagerRUIBOSHI:
     # 判断置信度的列名
     ATTRIBUTE_LIST = ['text', 'resource-id', 'className']
     # 所有元素类型
-    UI_CONTROLS_TYPE = ['按钮', '文本框', '勾选框', '单选按钮', '空值', '持续到页面跳转', '截图']
+    UI_CONTROLS_TYPE = ['按钮', '文本框', '勾选框', '单选按钮', '空值', '持续到页面跳转', '截图', '切换网络']
     # 需要输入内容的元素
-    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '可变文本']
+    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '可变文本', '切换网络']
     # 截图保存路径
     SCREENSHOT_PATH = rf"C:\Users\Administrator\Desktop\video\截图"
     # 存储手机截屏路径

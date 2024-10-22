@@ -21,7 +21,7 @@ from adjacency_list_module import AppFlowGraph
 from adb_commands import AdbManager as adb, AdbManager
 from config_module import get_config
 from my_decorator import screenshot, retry, printer, debug
-from mailbox_reader import get_verification_code
+from ui_hierarchy_utils import get_level_differences
 
 
 class UiAutomator2TestDriver:
@@ -58,6 +58,7 @@ class UiAutomator2TestDriver:
         # 目录名称和文件名，用于截图
         self.did = 'XXX'
         self.title = {'wakeup_time': ''}
+        self.run_parameters = {'rectangle': 0.4}
 
         # 显示等待时间，默认1秒
         self.WAIT_TIME = 1.0
@@ -94,7 +95,7 @@ class UiAutomator2TestDriver:
         self.driver.watcher.start()
 
     # @printer
-    def localize_element(self, localization_method, edges) -> _selector.UiObject:
+    def localize_element(self, localization_method, edges, swap=False) -> _selector.UiObject:
 
         localization_dict = {
             'text': lambda: self.driver(text=edges['text']),
@@ -105,8 +106,9 @@ class UiAutomator2TestDriver:
         }
         # 检查localization_method是否在字典的键中
         if localization_method in localization_dict.keys():
-            # 拖动屏幕，找到对应的元素
-            self.swipe_until_element_visible(edges[localization_method])
+            if swap:
+                # 拖动屏幕，找到对应的元素
+                self.swipe_until_element_visible(edges[localization_method], rectangle=self.run_parameters.get('rectangle'))
             # 隐式等待,默认10秒
             self.global_wait(localization_method, edges)
             # 调用字典中对应的函数
@@ -116,7 +118,7 @@ class UiAutomator2TestDriver:
             raise ValueError(f"Invalid localization method: {localization_method}")
 
     @printer
-    def find_element(self, edges: dict) -> _selector.UiObject:
+    def find_element(self, edges: dict, swap=False) -> _selector.UiObject:
         """
         根据提供的边缘信息字典定位元素。
         参数:
@@ -147,7 +149,7 @@ class UiAutomator2TestDriver:
         # print(localization_method)
         if localization_method is not None:
             # 当前页面跳转到下一跳页面，无需定位元素时，直接返回
-            return self.localize_element(localization_method, edges)
+            return self.localize_element(localization_method, edges, swap)
 
     def global_wait(self, localization_method, edges, times=10):
         """
@@ -164,7 +166,7 @@ class UiAutomator2TestDriver:
             times -= 1
 
     # @printer
-    def swipe_until_element_visible(self, attr, distance=0.2):
+    def swipe_until_element_visible(self, attr, rectangle=1.0):
         """滑动屏幕找到元素element"""
         size = self.driver.window_size()
         # 当我第一次进入页面的时候：
@@ -172,6 +174,7 @@ class UiAutomator2TestDriver:
         count = 0
         old_page = None
         new_page = self.driver.dump_hierarchy()
+        new_page = new_page[:int(len(new_page) * rectangle)]
         while not found and count < 3:
             if old_page == new_page:
                 count += 1
@@ -182,12 +185,13 @@ class UiAutomator2TestDriver:
                     found = True
                 else:
                     # 找不到元素的时候，滑动，此时页面更新
-                    self.driver.swipe_ext('up', scale=0.5, duration=0.25)
-                    time.sleep(2)
+                    self.driver.swipe_ext('up', scale=0.25, duration=0.2)
+                    time.sleep(0.5)
                     # 更新old 的值。用new 的值更新old 的值
                     old_page = new_page
                     # 更新new 的值为滑动后的page_source
                     new_page = self.driver.dump_hierarchy()
+                    new_page = new_page[:int(len(new_page) * rectangle)]
         return found
 
     def input_text_to_element(self, element, content, step=None):
@@ -325,14 +329,34 @@ class UiAutomator2TestDriver:
 
     def select_button(self, selection_criteria: dict, content=None) -> None:
         if content is not None:
-            # 找到带content文字的元素
-            self.localize_element(localization_method='text', edges={'text': content})
+            # 拖到屏幕找到对应元素
+            self.localize_element(localization_method='text', edges={'text': content}, swap=True)
             # 收集所有符合条件的控件
-            localized_elements = self.localize_element(localization_method="resource-id", edges=selection_criteria)
-            # 定位离content文字最近的控件
-            closest_element = self.get_closest_element(text=content, elements=localized_elements, mode='DOWN')
+            by = ""
+            if selection_criteria.get("resource-id") == selection_criteria.get("resource-id"):
+                # print('selection_criteria.get("resource-id"):', selection_criteria.get("resource-id"))
+                by = "resource-id"
+                localized_elements = self.localize_element(localization_method=by, edges=selection_criteria)
+            else:
+                by = "text"
+                localized_elements = self.localize_element(localization_method=by, edges=selection_criteria)
+
+            # # 定位离content文字最近的控件
+            # closest_element = self.get_closest_element(text=content, elements=localized_elements, mode='DOWN')
             # print(closest_element)
-            closest_element.click()
+            # closest_element.click()
+
+            # 判断类型是否为列表，不是则直接点击
+            # print(type(localized_elements), len(localized_elements))
+            if len(localized_elements) > 1:
+                # 找到层级最近元素的下标
+                index = get_level_differences(self.driver, content, selection_criteria[by], by)
+                localized_elements[index].click()
+            elif len(localized_elements) == 1:
+                localized_elements.click()
+            else:
+                raise Exception("未找到对应的元素")
+
         else:
             # 未提供定位元素的锚点，则点击第一个元素
             localized_elements = self.localize_element(localization_method="resource-id", edges=selection_criteria)
@@ -362,8 +386,6 @@ class UiAutomator2TestDriver:
         # 如果元素存在，则点击，否则直接返回
         if element.exists():
             element.click()
-        else:
-            return f"{element}元素不存在"
 
     def click_or_input(self, step, content=None):
         """
@@ -410,6 +432,13 @@ class UiAutomator2TestDriver:
             self.click_element_by_content_desc(content=content)
         elif step['控件类型'] == '可变文本':
             self.click_variable_text(content)
+        elif step['控件类型'] == '切换网络':
+            if content:
+                _ssid = content[0]
+                _pwd = content[1]
+                AdbManager.connect_network(self.androidDeviceID, _ssid, _pwd)
+            else:
+                raise Exception("未检测到参数：Wi-Fi名称和密码")
         # 判断等待时间不为nan
         if step['等待时间'] == step['等待时间']:
             time.sleep(step['等待时间'])

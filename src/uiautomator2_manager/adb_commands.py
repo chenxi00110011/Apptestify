@@ -41,6 +41,9 @@ class AdbManager:
     # 点击屏幕
     TAP = "shell input tap 100 200"
 
+    # 手机连接Wi-Fi
+    CONNECT_NETWORK = "shell cmd wifi connect-network {} wpa2 {}"
+
     @staticmethod
     def execute_command(deviceID: str, command: str):
         """执行ADB命令并返回输出"""
@@ -76,16 +79,23 @@ class AdbManager:
         command = AdbManager.DOWNLOAD_FILE.format(local_path, remote_path)
         return AdbManager.execute_command(deviceID, command)
 
+    @staticmethod
+    def connect_network(deviceID: str, ssid: str, pwd: str):
+        """下载文件到手机"""
+        command = AdbManager.CONNECT_NETWORK.format(ssid, pwd)
+        return AdbManager.execute_command(deviceID, command)
+
 
 if __name__ == "__main__":
     from config_module import get_config
     # AdbManager().download_file('H675FIS8JJU8AMWW', '../../data/test.apk', rui.APK_DIR)
     # AdbManager().uninstall_app('H675FIS8JJU8AMWW', rui.APP_PACKAGE_NAME)
     # AdbManager().install_app('H675FIS8JJU8AMWW', '../../data/test.apk')
-    AdbManager.download_file(
-        deviceID='H675FIS8JJU8AMWW',
-        local_path=os.path.join(get_config('睿博士').QR_DIR, 'v1.png'),
-        remote_path=get_config('睿博士').MOBILE_SCREEN_CAPTUREA
-    )
+    # AdbManager.download_file(
+    #     deviceID='H675FIS8JJU8AMWW',
+    #     local_path=os.path.join(get_config('睿博士').QR_DIR, 'v1.png'),
+    #     remote_path=get_config('睿博士').MOBILE_SCREEN_CAPTUREA
+    # )
+    #
 
-
+    AdbManager.connect_network('H675FIS8JJU8AMWW', "ZWAP_IOTFAA-000086-MRNRJ", '01234567')
