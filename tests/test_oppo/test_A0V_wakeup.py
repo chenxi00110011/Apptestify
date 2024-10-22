@@ -4,37 +4,37 @@
 Author:
 Date:
 """
-import time
-from uiautomator2_extended import Uiautomator2SophisticatedExecutor
 import pytest
 import ntp_util
 from loguru import logger
 from config_module import ConfigManagerRUIBOSHI as rui
+import time
+import pytest
+import uiautomator2_extended
 
 logger.add(rui.LOGS_DIR + f"\\{ntp_util.timestamp_to_date()}.log", encoding="utf-8")
 
 # delay_list = [60, 120, 300, 600]
 users = ["18086409233", "13638601129"]
 # sleep_times = range(30)
-dids = ['卧室23',
-        '家24']
+dids = ['036124']
 wake_up_times = {'直播唤醒': [],
                  '设置唤醒': []}
 
 
 @pytest.mark.aov_wakeup_20240628
 @pytest.mark.parametrize("did", dids)
-def test_pull_live_stream_01(did: str, setup_ruiboshi: Uiautomator2SophisticatedExecutor):
+def test_pull_live_stream_01(did: str):
     sleep_time = 30
     logger.info(f"设备休眠时间为{sleep_time}秒")
     time.sleep(sleep_time)
-    app = setup_ruiboshi
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     app.did = did
-    app.go_to_page("首页",'13590267955', 'ljf123456')
+    app.go_to_page("首页", '13590267955', 'ljf123456')
     start_time = time.time()
     app.go_to_page("直播", did)
     count = 0
-    while not app.exists_element(value="云台"):
+    while not app.exists_element(value="云台", timeout=1):
         count += 1
         if count >= 30:
             logger.error("直播预览出流超时")
@@ -46,12 +46,11 @@ def test_pull_live_stream_01(did: str, setup_ruiboshi: Uiautomator2Sophisticated
     logger.debug("***********************进入直播用时{:.2f}秒**********************".format(wake_up_time))
     wake_up_list = [num for num in wake_up_times['直播唤醒'] if num <= 60]
     logger.debug(wake_up_list)
-    logger.debug(sum(wake_up_list)/len(wake_up_list))
+    logger.debug(sum(wake_up_list) / len(wake_up_list))
     app.title['wakeup_time'] = "{:.2f}".format(wake_up_time)
     time.sleep(10)
     app.go_to_page("截图")
     app.app_stop_()
-
 
 # @pytest.mark.aov_wakeup_02_oppo
 # @pytest.mark.parametrize("sleep_time", sleep_times)
@@ -83,4 +82,3 @@ def test_pull_live_stream_01(did: str, setup_ruiboshi: Uiautomator2Sophisticated
 #     time.sleep(10)
 #     app.go_to_page("截图")
 #
-

@@ -1,5 +1,8 @@
 import os
+import hashlib
 import re
+
+
 # from my_decorator import match_pattern_in_list, print_list_items
 
 
@@ -31,7 +34,27 @@ def list_files(directory, extension=None):
     return file_list
 
 
+def get_file_md5(file_path):
+    # 创建一个md5对象
+    md5_hash = hashlib.md5()
+
+    # 打开文件并逐块读取
+    with open(file_path, 'rb') as f:
+        # 循环读取文件块
+        for chunk in iter(lambda: f.read(4096), b""):
+            # 更新md5对象
+            md5_hash.update(chunk)
+
+    # 返回文件的md5哈希值
+    return md5_hash.hexdigest()
+
+
 if __name__ == '__main__':
-    # Example usage:
-    file_list = list_files(r"C:\Users\Administrator\Desktop\g固件包\easydebug\Sessions", "RELAY")
-    print(sorted(file_list, key=str))
+    # # Example usage:
+    # file_list = list_files(r"C:\Users\Administrator\Desktop\g固件包\easydebug\Sessions", "RELAY")
+    # print(sorted(file_list, key=str))
+
+    # 使用示例
+    file_path = r'C:\Users\Administrator\Desktop\l临时升级包\EasyVMS_v4.5.0.864_RC20240902.exe'
+    md5_value = get_file_md5(file_path)
+    print(f"The MD5 hash of the file is: {md5_value}")

@@ -4,5 +4,7 @@
 !src/
 !docs/
 !tests/
-!data/
 !requirements.txt
+**/qr/
+**/__pycache__/
+**/data/

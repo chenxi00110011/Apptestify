@@ -63,7 +63,7 @@ class ConfigManagerRUIBOSHI:
     # 所有元素类型
     UI_CONTROLS_TYPE = ['按钮', '文本框', '勾选框', '单选按钮', '空值', '持续到页面跳转', '截图']
     # 需要输入内容的元素
-    UI_ELEMENTS = ['文本框', '单选按钮', '截图']
+    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '可变文本']
     # 截图保存路径
     SCREENSHOT_PATH = rf"C:\Users\Administrator\Desktop\video\截图"
     # 存储手机截屏路径

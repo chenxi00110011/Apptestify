@@ -4,7 +4,14 @@
 Author:
 Date:
 """
-# 有个很奇怪的BUG，在localize_element方法前加上@printer会导致返回为空,结果是因为装饰器没有返回导致
+"""
+1. 把等待时间放在放在find_element 方法中实现，且分为两块
+ 一块是动态等待时间，在这段时间内，循环判断元素是否出现，出现就返回结果
+ 一块是固定等待时间，这个在click_or_input方法中实现，默认是等待1秒，还会从excel中读取
+2. 把save_screenshot从新实现，用另一个方法替代
+3. select_button方法从新实现，通过文本定位到附近的另一个元素，目前是通过坐标距离实现的
+应该可以通过节点关系实现
+"""
 
 # uiautomator2_automation_module.py
 import time
@@ -14,16 +21,26 @@ from adjacency_list_module import AppFlowGraph
 from adb_commands import AdbManager as adb, AdbManager
 from config_module import get_config
 from my_decorator import screenshot, retry, printer, debug
+from mailbox_reader import get_verification_code
 
 
 class UiAutomator2TestDriver:
 
     @timer
     def __init__(self, androidDeviceID, app_name):
-        self.allElemDict = None  # 从excel读取页面元素，并缓存
-        self.androidDeviceID = androidDeviceID  # 手机序列号
+        # 从excel读取页面元素，并缓存
+        self.allElemDict = None
+
+        # 手机序列号
+        self.androidDeviceID = androidDeviceID
+
+        # 获取app相关配置参数
         self.config = get_config(app_name)
+
+        # 获取包名
         self.appPackage = self.config.APP_PACKAGE_NAME
+
+        # 手机连接
         self.driver = self.connect()  # 连接手机并启动app
 
         # 监听弹窗
@@ -31,12 +48,23 @@ class UiAutomator2TestDriver:
 
         # 等待特定的Activity出现
         self.driver.wait_activity(self.config.APP_ACTIVITY_NAME, timeout=10)  # 等待10秒
-        self.driver.implicitly_wait(10)  # 设置默认元素等待超时时间10秒
+
+        # 设置默认元素等待超时时间10秒
+        self.driver.implicitly_wait(10)
+
+        # 生成有向图
         self.digraph = AppFlowGraph(self.config)
+
+        # 目录名称和文件名，用于截图
         self.did = 'XXX'
         self.title = {'wakeup_time': ''}
+
+        # 显示等待时间，默认1秒
         self.WAIT_TIME = 1.0
-        # self.driver.click_post_delay = 1.5    # 设置每次点击UI后再次点击之间延时1.5秒
+
+        # 设置每次点击UI后再次点击之间延时1.5秒
+        # self.driver.click_post_delay = 1.5
+
         # 停止监听弹窗
         self.driver.watcher.stop()
 
@@ -79,6 +107,8 @@ class UiAutomator2TestDriver:
         if localization_method in localization_dict.keys():
             # 拖动屏幕，找到对应的元素
             self.swipe_until_element_visible(edges[localization_method])
+            # 隐式等待,默认10秒
+            self.global_wait(localization_method, edges)
             # 调用字典中对应的函数
             return localization_dict[localization_method]()
         else:
@@ -118,6 +148,20 @@ class UiAutomator2TestDriver:
         if localization_method is not None:
             # 当前页面跳转到下一跳页面，无需定位元素时，直接返回
             return self.localize_element(localization_method, edges)
+
+    def global_wait(self, localization_method, edges, times=10):
+        """
+        隐式等待
+
+        :param self: 当前类实例的引用。
+        :param localization_method: 在屏幕上定位元素所使用的方法。
+                                     这可能是指通过ID、类名、文本或其他属性来定位元素的方法。
+        :param edges: 定义等待区域的边界，这可能是一个包含屏幕坐标的元组或列表，
+                      用于限定等待元素出现的屏幕区域。
+        """
+        while not self.exists_element(selector=localization_method,
+                                      value=edges.get(localization_method), timeout=1.0) and times >= 0:
+            times -= 1
 
     # @printer
     def swipe_until_element_visible(self, attr, distance=0.2):
@@ -210,13 +254,15 @@ class UiAutomator2TestDriver:
         print("手机截图")
         return self
 
-    def exists_element(self, selector="text", value=None):
+    def exists_element(self, selector="text", value=None, timeout=0.2):
         global ui_object
         if selector == "text":
             ui_object = self.driver(text=value)
-        elif selector == "resourceId":
-            ui_object = self.driver(text=value)
-        return ui_object.exists(timeout=0.2)
+        elif selector == "resource-id":
+            ui_object = self.driver(resourceId=value)
+        elif selector == "className":
+            ui_object = self.driver(className=value)
+        return ui_object.exists(timeout=timeout)
 
     def get_closest_element(self, text: str, elements, mode=None) -> _selector.UiObject:
         """
@@ -253,9 +299,14 @@ class UiAutomator2TestDriver:
         coord1 = get_element_center_coordinates(elem1)
         coord2 = None
         elem_coordinate = {}
+
+        # 检查 elements是否是列表，不是就改为列表类型
+        if not isinstance(elements, list):
+            elements = [elements]
+
         for elem2 in elements:
             # 获取元素的坐标
-            print("-" * 10, ">走这")
+            # print("-" * 10, ">走这")
             coord2 = get_element_center_coordinates(elem2)
             # 模式是向下查找，并且元素的Y轴坐标小于锚点
             if mode == 'DOWN' and coord2[1] - coord1[1] < -50:
@@ -265,9 +316,10 @@ class UiAutomator2TestDriver:
                 continue
             elem_coordinate[elem2] = calculate_distance_between_coordinates(coord1, coord2)
 
-        print("coord1, coord2: ", coord1, coord2)
-        print("elements: ", elements)
-        print("elem_coordinate: ", elem_coordinate)
+        # print("coord1, coord2: ", coord1, coord2)
+        # print(isinstance(elements, list))
+        # print("elements: ", elements)
+        # print("elem_coordinate: ", elem_coordinate)
         min_key = min(elem_coordinate, key=lambda k: elem_coordinate[k])
         return min_key
 
@@ -277,14 +329,6 @@ class UiAutomator2TestDriver:
             self.localize_element(localization_method='text', edges={'text': content})
             # 收集所有符合条件的控件
             localized_elements = self.localize_element(localization_method="resource-id", edges=selection_criteria)
-
-            # 检查localized_elements是否为None
-            if not localized_elements:
-                return
-            # 检查localized_elements是否为list，不是就放到list中
-            elif not isinstance(localized_elements, list):
-                localized_elements = list(localized_elements)
-
             # 定位离content文字最近的控件
             closest_element = self.get_closest_element(text=content, elements=localized_elements, mode='DOWN')
             # print(closest_element)
@@ -293,6 +337,10 @@ class UiAutomator2TestDriver:
             # 未提供定位元素的锚点，则点击第一个元素
             localized_elements = self.localize_element(localization_method="resource-id", edges=selection_criteria)
             localized_elements.click()
+
+    def click_variable_text(self, pattern: str):
+        # 用于定位文本内容可变的元素，例如蓝牙配网里的DID等
+        self.localize_element(localization_method='text', edges={'text': pattern}).click()
 
     def get_element_text(self, element: _selector.UiObject):
         val = element.get_text()
@@ -309,11 +357,13 @@ class UiAutomator2TestDriver:
             raise Exception("未提供定位信息，请填写默认值")
 
     @staticmethod
+    @printer
     def optional_button(element):
+        # 如果元素存在，则点击，否则直接返回
         if element.exists():
             element.click()
         else:
-            return
+            return f"{element}元素不存在"
 
     def click_or_input(self, step, content=None):
         """
@@ -358,7 +408,8 @@ class UiAutomator2TestDriver:
         elif step['控件类型'] == 'contentDesc':
             # 基于元素的“可访问性描述”（Accessibility Description）来识别界面组件
             self.click_element_by_content_desc(content=content)
-
+        elif step['控件类型'] == '可变文本':
+            self.click_variable_text(content)
         # 判断等待时间不为nan
         if step['等待时间'] == step['等待时间']:
             time.sleep(step['等待时间'])
@@ -373,7 +424,7 @@ class UiAutomator2TestDriver:
         # 4. `element.click()` 用于点击按钮的方法。
 
     @printer
-    @retry(retries=2, delay=1)
+    @retry(retries=3, delay=2)
     def get_current_page(self):
 
         # 使用dump_hierarchy方法获取当前页面的内容，并将其存储在page_content变量中
@@ -381,38 +432,6 @@ class UiAutomator2TestDriver:
         # 调用digraph对象的compute_page_trust_score方法，并传入page_content作为参数
         # compute_page_trust_score方法将计算并返回信任分数最高的页面名
         return self.digraph.compute_page_trust_score(page_content)
-
-    #
-    # def go_to_page(self, *args):
-    #     """
-    #     跳转到指定页面，处理必要的交互。
-    #     """
-    #     # 关闭弹窗（如果有的话）
-    #     # self.close_popup()
-    #
-    #     # 获取当前页面名称
-    #     current_page_name = self.get_current_page()
-    #
-    #     # 检查起始页面与目标页面是否相同
-    #     if current_page_name == args[0]:
-    #         return
-    #
-    #         # 生成跳转路径
-    #     path = self.digraph.get_shortest_path_for_app_pages(start_node=current_page_name, end_node=args[0])
-    #     print(path)
-    #
-    #     # 遍历路径，执行跳转操作
-    #     for step in path:
-    #         print(step)
-    #         content = None
-    #
-    #         # 根据控件类型处理输入内容
-    #         if step['控件类型'] in ['input_box', 'list_view'] and len(args) > 1:
-    #             content = args[1]
-    #             args = args[2:]  # 移除已使用的参数
-    #
-    #         # 执行点击或输入操作
-    #         self.click_or_input(step, content)
 
     @staticmethod
     def demo_01():

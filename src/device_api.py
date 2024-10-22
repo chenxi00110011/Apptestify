@@ -4,8 +4,6 @@
 Author:
 Date:
 """
-import time
-
 import requests
 import xmltodict
 from device_endpoints import DevEndpoints
@@ -64,10 +62,9 @@ class DeviceAPIManager(DevEndpoints):
         return self.put_data_to_endpoint(self.IR_CUT_FILTER)
 
 
-
 if __name__ == '__main__':
-    endpoints = DeviceAPIManager('192.168.156.137')
-    endpoints.open_telnet()
+    DeviceAPIManager('192.168.19.153').open_telnet()
+    # endpoints.open_telnet()
     # endpoints.device_reverse_packet()
     # endpoints.get_sdcard_info()
     # endpoints.get_time_info()
