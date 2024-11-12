@@ -5,20 +5,13 @@ import uiautomator2_extended
 from xrs_serial import serial_bitstream
 from router_config import modify_wifi, read_config, router_management, get_sections
 from adb_commands import AdbManager
-
-
-def device_reset():
-    config = read_config(r'C:\Users\Administrator\P2pServerTest\Apptestify\config\base.ini')
-    com = config.get("串口", "reset")
-    # 设备复位
-    serial_bitstream(com, '断电', 6)
-    serial_bitstream(com, '上电', 30)
+from device_reset import reset
 
 
 @pytest.mark.repeat(20)
 def test_bing_ap():
     # 设备复位
-    device_reset()
+    reset()
 
     # 启动睿博士appblue
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -35,7 +28,7 @@ def test_bing_ap():
 @pytest.mark.repeat(20)
 def test_bing_wifi_qr():
     # # 设备复位
-    device_reset()
+    reset()
 
     # 启动睿博士app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -52,11 +45,11 @@ def test_bing_wifi_qr():
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
-@pytest.mark.repeat(1)
+@pytest.mark.repeat(20)
 # @pytest.mark.flaky(reruns=20, reruns_delay=5)
 def test_bing_bluetooth():
     # # 设备复位
-    device_reset()
+    reset()
 
     # 启动睿博士app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -70,10 +63,11 @@ def test_bing_bluetooth():
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
+@pytest.mark.repeat(100)
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))
 def test_various_ssid_bluetooth(section):
     # 设备复位
-    device_reset()
+    reset()
 
     # 设置路由器ssid和密码
     print("本次测试路由器的SSID类型：\t", section)
@@ -107,7 +101,7 @@ def test_various_ssid_bluetooth(section):
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))
 def test_various_ssid_ap(section):
     # 设备复位
-    device_reset()
+    reset()
 
     # 设置路由器ssid和密码
     print("本次测试路由器的SSID类型：\t", section)
@@ -141,7 +135,7 @@ def test_various_ssid_ap(section):
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))
 def test_various_ssid_qr(section):
     # 设备复位
-    device_reset()
+    reset()
 
     # 设置路由器ssid和密码
     print("本次测试路由器的SSID类型：\t", section)

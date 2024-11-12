@@ -87,6 +87,12 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
 if __name__ == '__main__':
     d = Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     while True:
-        pageName = input('请手动跳转页面，并输出页面名称：')
-        d.getAllElement(pageName)
-        # d.get_current_page()
+        mode = int(input("请选择模式（获取页面名称1，获取页面元素0）：\t"))
+        if mode == 0:
+            pageName = input('请手动跳转页面，并输出页面名称：')
+            d.getAllElement(pageName)
+        elif mode == 1:
+            d.get_current_page()
+        else:
+            raise Exception("输入错误")
+
