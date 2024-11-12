@@ -61,9 +61,12 @@ class DeviceAPIManager(DevEndpoints):
     def set_ir_cut_filter_config(self):
         return self.put_data_to_endpoint(self.IR_CUT_FILTER)
 
+    def get_dev_info(self):
+        return self.get_data_from_endpoint(self.DEVICE_INFO)
+
 
 if __name__ == '__main__':
-    DeviceAPIManager('192.168.19.153').open_telnet()
+    DeviceAPIManager('192.168.1.100').get_dev_info()
     # endpoints.open_telnet()
     # endpoints.device_reverse_packet()
     # endpoints.get_sdcard_info()

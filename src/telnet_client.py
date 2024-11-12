@@ -32,9 +32,9 @@ def telnet_connect(host, username, password, command):
 
 
 if __name__ == "__main__":
-    host = "192.168.20.39"
+    host = "192.168.1.100"
     username = "root"
     password = "zviewa5s"
-    command = "uptime"
+    command = "cat  /data/config/config/Edvr.cfg"
     telnet_connect(host, username, password, command)
 

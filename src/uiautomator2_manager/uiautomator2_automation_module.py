@@ -58,7 +58,7 @@ class UiAutomator2TestDriver:
         # 目录名称和文件名，用于截图
         self.did = 'XXX'
         self.title = {'wakeup_time': ''}
-        self.run_parameters = {'rectangle': 0.4}
+        self.run_parameters = {'rectangle': 0.8}
 
         # 显示等待时间，默认1秒
         self.WAIT_TIME = 1.0
@@ -214,12 +214,13 @@ class UiAutomator2TestDriver:
         # 如果需要，你可以发送一个回车键事件来结束输入
         self.driver.press("enter")
 
-    @staticmethod
-    def check_and_click_checkbox(element):
+    def check_and_click_checkbox(self, element):
         # 假设element.info['checked']可以正确获取checked属性的值
         is_checked = element.info['checked']
-        # 如果CheckBox没有被选中，则点击它
-        if not is_checked:
+        # 预设值的目标
+        target = self.title.get("checked")
+        # 如果CheckBox与目标不一致，则点击它
+        if is_checked != target:
             element.click()
 
     def handleRadioGroupSelection(self, content):

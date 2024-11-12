@@ -181,5 +181,5 @@ if __name__ == '__main__':
         # G.get_shortest_path_for_app_pages('扫码配网', '设备添加成功')
         # G.get_shortest_path_for_app_pages('输入WiFi网络', '设备扫描二维码')
         # G.get_shortest_path_for_app_pages('设备扫描二维码', '设备添加成功')
-        G.get_shortest_path_for_app_pages('首页', '手动添加')
+        G.get_shortest_path_for_app_pages('云回放', '截图')
     demo()
