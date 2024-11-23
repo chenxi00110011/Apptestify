@@ -154,9 +154,9 @@ def get_pixel_color(image_path, position):
 
 
 if __name__ == '__main__':
-    # # url = 'C:\\Users\\Administrator\\Desktop\\video\\screenshot\\IOTDBB-065896-UXLYD_2023_06_07_17_43_01_CH_1_imageNametest_dev.jpg'
-    # # url = 'C:\\Users\\Administrator\\Desktop\\video\\videos\\9E52C023-E5F3-4f81-BFB3-D0CEB65AEC4B.png'
-    # # # print(recognize_text(url, (0, 0.089, 0, 0.31)))
-    # # print(recognize_text(url, (0, 1, 0, 1)))
+    # # url = 'C:\\Users\\Administrator\\Desktop\\video\\screenshot\\IOTDBB-065896
+    # -UXLYD_2023_06_07_17_43_01_CH_1_imageNametest_dev.jpg' # url =
+    # 'C:\\Users\\Administrator\\Desktop\\video\\videos\\9E52C023-E5F3-4f81-BFB3-D0CEB65AEC4B.png' # # print(
+    # recognize_text(url, (0, 0.089, 0, 0.31))) # print(recognize_text(url, (0, 1, 0, 1)))
     path = 'C:\\Users\\Administrator\\Desktop\\video\\截图\\H675FIS8JJU8AMWW\\000602\\2024-05-31\\15-20-01-秒.JPG'
     print(image_timestamp(filePath=path))

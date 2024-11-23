@@ -86,7 +86,7 @@ def screenshot(shot_path=None):
             adb = adb_commands.AdbManager()
             temp = func(*args, **kwargs)  # 调用被装饰的函数
             result = temp
-            wakeup_time = temp.title['wakeup_time']
+            shootName = temp.title['shootName']
             create_folder_if_not_exists(shot_path)
             file_path = shot_path + f"//{result.androidDeviceID}"
             create_folder_if_not_exists(shot_path + f"//{result.androidDeviceID}")
@@ -94,7 +94,7 @@ def screenshot(shot_path=None):
             create_folder_if_not_exists(file_path)
             file_path = file_path + f'//{ntp_util.timestamp_to_date()}'
             create_folder_if_not_exists(file_path)
-            filename = ntp_util.timestamp_to_date(format="%H-%M-%S") + f'-{wakeup_time}' + '.PNG'
+            filename = ntp_util.timestamp_to_date(format="%H-%M-%S") + f'-{shootName}' + '.PNG'
             # 执行手机截屏命令
             os.system(adb.execute_command(result.androidDeviceID, adb.SCREEN_SHOOT))
             os.system(

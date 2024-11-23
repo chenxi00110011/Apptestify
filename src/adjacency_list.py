@@ -284,4 +284,4 @@ if __name__ == "__main__":
     # print(g.dfs('智能', '直播'))
     # print(g.get_road_sign('智能', '设备'))
     # print(g.get_road_sign('设备', '告警'))
-    print(g.get_road_sign('首页', '扫一扫页'))
+    print(g.get_road_sign('首页', '扫一扫'))

@@ -12,7 +12,7 @@ parameter = [(_config.get('设备分享', 'did'), _config.get('设备分享', 'n
 @pytest.mark.parametrize("did,name", parameter)
 def test_handoverDevice(did, name):
     # 设备复位
-    reset()
+    reset(did)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -63,7 +63,7 @@ parameter = [(account_config.get('睿博士测试邮箱账号', 'account'),
 @pytest.mark.parametrize("account1, pwd1, account2, pwd2, did, name", parameter)
 def test_account_sharing(account1, pwd1, account2, pwd2, did, name):
     # 设备复位
-    reset()
+    reset(did)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -96,7 +96,7 @@ def test_account_sharing(account1, pwd1, account2, pwd2, did, name):
 @pytest.mark.parametrize("account1, pwd1, account2, pwd2, did, name", parameter)
 def test_qr_sharing(account1, pwd1, account2, pwd2, did, name):
     # 设备复位
-    reset()
+    reset(did)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -154,7 +154,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 @pytest.mark.parametrize("account1, pwd1, account2, pwd2, did, name", parameter)
 def test_WeChat_sharing(account1, pwd1, account2, pwd2, did, name):
     # 设备复位
-    reset()
+    reset(did)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')

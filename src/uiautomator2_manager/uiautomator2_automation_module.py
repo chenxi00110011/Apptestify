@@ -4,6 +4,8 @@
 Author:
 Date:
 """
+
+
 """
 1. 把等待时间放在放在find_element 方法中实现，且分为两块
  一块是动态等待时间，在这段时间内，循环判断元素是否出现，出现就返回结果
@@ -14,14 +16,20 @@ Date:
 """
 
 # uiautomator2_automation_module.py
+from datetime import datetime
+from ocr_extractor import extract_text_from_image, crop_image
 import time
 from uiautomator2 import connect, Device, _selector
-from my_decorator import timer, forbidden_method, print_current_time
+from my_decorator import timer, forbidden_method, print_current_time, create_folder_if_not_exists
 from adjacency_list_module import AppFlowGraph
 from adb_commands import AdbManager as adb, AdbManager
 from config_module import get_config
 from my_decorator import screenshot, retry, printer, debug
 from ui_hierarchy_utils import get_level_differences
+import configparser
+import os.path
+import ntp_util
+import re
 
 
 class UiAutomator2TestDriver:
@@ -57,8 +65,8 @@ class UiAutomator2TestDriver:
 
         # 目录名称和文件名，用于截图
         self.did = 'XXX'
-        self.title = {'wakeup_time': ''}
-        self.run_parameters = {'rectangle': 0.8}
+        self.title = {'wakeup_time': '', 'shootName': 'test.jpg'}
+        self.run_parameters = {'rectangle': 0.5}
 
         # 显示等待时间，默认1秒
         self.WAIT_TIME = 1.0
@@ -69,14 +77,35 @@ class UiAutomator2TestDriver:
         # 停止监听弹窗
         self.driver.watcher.stop()
 
+        # 定义弹窗处理字典
+        self.popup_handlers = {
+            "com.zwcode.p6slite:id/bg_dialog_obs_acti_iv": {
+                "ok_button": "com.example.app:id/ok_button",
+                "cancel_button": "com.example.app:id/cancel_button",
+                "action": lambda: self.driver(resourceId="com.zwcode.p6slite:id/ic_close_cloud_free_dialog").click()
+            },
+            "com.example.app:id/another_popup_dialog": {
+                "ok_button": "com.example.app:id/another_ok_button",
+                "cancel_button": "com.example.app:id/another_cancel_button",
+                "action": lambda: self.driver(resourceId="com.example.app:id/ok_button").click()
+            },
+            # 可以添加更多弹窗
+        }
+
+        # 读取配置文件
+        self._config = self.read_config(r"C:\Users\Administrator\P2pServerTest\Apptestify\config\base.ini")
+
     def connect(self):
         # 点亮屏幕和解锁
         adb.execute_command(self.androidDeviceID, adb.LIGHT_UP_SCREEN)
         adb.execute_command(self.androidDeviceID, adb.UNLOCK_SCREEN)
+
         # 连接设备，这里使用设备的序列号，如果你没有提供序列号，将连接第一台可用的设备
         device = connect(self.androidDeviceID)
+
         # 关闭应用
         device.app_stop(self.appPackage)
+
         # 启动应用
         device.app_start(self.appPackage, wait=True)
         adb.set_default_input_method(self.androidDeviceID, 'io.appium.settings/.UnicodeIME')
@@ -108,7 +137,8 @@ class UiAutomator2TestDriver:
         if localization_method in localization_dict.keys():
             if swap:
                 # 拖动屏幕，找到对应的元素
-                self.swipe_until_element_visible(edges[localization_method], rectangle=self.run_parameters.get('rectangle'))
+                self.swipe_until_element_visible(edges[localization_method],
+                                                 rectangle=self.run_parameters.get('rectangle'))
             # 隐式等待,默认10秒
             self.global_wait(localization_method, edges)
             # 调用字典中对应的函数
@@ -151,6 +181,16 @@ class UiAutomator2TestDriver:
             # 当前页面跳转到下一跳页面，无需定位元素时，直接返回
             return self.localize_element(localization_method, edges, swap)
 
+    # 定义处理弹窗的函数
+    def handle_popup(self):
+        for popup_id, handler in self.popup_handlers.items():
+            if self.driver(resourceId=popup_id).exists:
+                # 执行相应的处理逻辑
+                handler["action"]()
+                print(f"弹窗 {popup_id} 已处理")
+                return True
+        return False
+
     def global_wait(self, localization_method, edges, times=10):
         """
         隐式等待
@@ -185,11 +225,11 @@ class UiAutomator2TestDriver:
                     found = True
                 else:
                     # 找不到元素的时候，滑动，此时页面更新
-                    self.driver.swipe_ext('up', scale=0.25, duration=0.2)
-                    time.sleep(0.5)
+                    self.driver.swipe_ext('up', scale=0.25, duration=0.1)
                     # 更新old 的值。用new 的值更新old 的值
                     old_page = new_page
                     # 更新new 的值为滑动后的page_source
+                    time.sleep(0.1)
                     new_page = self.driver.dump_hierarchy()
                     new_page = new_page[:int(len(new_page) * rectangle)]
         return found
@@ -259,6 +299,48 @@ class UiAutomator2TestDriver:
         print("手机截图")
         return self
 
+    def save_screenshotV1(self, bounds=None):
+        """
+        保存截图到指定路径。
+
+        1. 从配置文件中获取基础路径。
+        2. 获取当前日期。
+        3. 拼接完整的路径。
+        4. 确保目录存在。
+        5. 保存截图到指定路径。
+        """
+        # 从配置文件中获取基础路径
+        base_path = self._config.get("睿博士APP", "shot_path")
+
+        # 获取当前日期，格式为 YYYY-MM-DD
+        date = ntp_util.timestamp_to_date()
+
+        # 拼接完整的路径
+        full_path = os.path.join(base_path, self.androidDeviceID, self.did, date)
+
+        # 确保目录存在
+        create_folder_if_not_exists(full_path)
+
+        # 生成截图文件名
+        screenshot_filename = self.title.get('shootName')
+
+        # 拼接完整的文件路径
+        screenshot_path = os.path.join(full_path, screenshot_filename)
+
+        # 保存截图
+        self.driver.screenshot(screenshot_path)
+
+        # 判断是否需要对图片进行处理
+        if bounds is None:
+            print(">>>here----")
+            return screenshot_path
+
+        # 对图片进行裁剪
+        crop_image(screenshot_path, bounds['left'], bounds['top'], bounds['right'], bounds['bottom'], output=True,
+                   target_width=300, target_height=300)
+        print(">>>here")
+        return screenshot_path
+
     def exists_element(self, selector="text", value=None, timeout=0.2):
         global ui_object
         if selector == "text":
@@ -268,6 +350,19 @@ class UiAutomator2TestDriver:
         elif selector == "className":
             ui_object = self.driver(className=value)
         return ui_object.exists(timeout=timeout)
+
+    @staticmethod
+    def read_config(file_path):
+        """
+        读取 INI 配置文件。
+
+        :param file_path: INI 文件的路径
+        :return: 配置对象
+        """
+        config = configparser.ConfigParser()
+        with open(file_path, 'r', encoding='utf-8') as file:
+            config.read_file(file)
+        return config
 
     def get_closest_element(self, text: str, elements, mode=None) -> _selector.UiObject:
         """
@@ -365,7 +460,7 @@ class UiAutomator2TestDriver:
 
     def click_variable_text(self, pattern: str):
         # 用于定位文本内容可变的元素，例如蓝牙配网里的DID等
-        self.localize_element(localization_method='text', edges={'text': pattern}).click()
+        self.localize_element(localization_method='text', edges={'text': pattern}, swap=True).click()
 
     def get_element_text(self, element: _selector.UiObject):
         val = element.get_text()
@@ -380,6 +475,177 @@ class UiAutomator2TestDriver:
             element.click()
         else:
             raise Exception("未提供定位信息，请填写默认值")
+
+    def drag_timeline(self, timeLineId: str, tvTimeId: str, target_time: str, offset=10, duration=0.2):
+        """
+        拖动时间轴到目标时间。
+
+        :param timeLineId: 时间轴元素的资源ID
+        :param tvTimeId: 当前时间显示元素的资源ID
+        :param target_time: 目标时间（格式为 "HH:MM:SS"）
+        :param offset: 每次拖动的偏移量
+        :param duration: 拖动持续时间（秒）
+        """
+        # 查找时间轴元素
+        timeline = self.driver(resourceId=timeLineId)
+        tvtime = self.driver(resourceId=tvTimeId)
+
+        # 确保时间轴元素和当前时间元素存在
+        if not (timeline.exists and tvtime.exists):
+            print("时间轴元素或当前时间元素未找到，请检查资源ID或UI层次结构。")
+            return
+
+        # 获取当前时间和目标时间的时间戳
+        def parse_time(time_str):
+            h, m, s = map(int, time_str.split(':'))
+            return h * 3600 + m * 60 + s
+
+        current_timestamp = parse_time(tvtime.get_text())
+        target_timestamp = parse_time(target_time)
+
+        # 获取时间轴的边界信息
+        timeline_bounds = timeline.info['bounds']
+        x_center = (timeline_bounds['left'] + timeline_bounds['right']) // 2
+        y_center = (timeline_bounds['top'] + timeline_bounds['bottom']) // 2  # 时间轴的中心
+
+        # 初始化拖动次数和拖动系数
+        drag_left = 0
+        drag_right = 0
+        drag_coefficient = 1
+
+        # 拖动时间轴直到达到目标时间
+        while abs(current_timestamp - target_timestamp) > 10:  # 允许10秒的误差
+            # 计算拖动系数
+            if drag_left == 0 or drag_right == 0:
+                drag_coefficient = drag_coefficient * 2
+            else:
+                # 反向时初始化拖动次数和拖动系数
+                drag_left = 0
+                drag_right = 0
+                drag_coefficient = 1
+
+            # 控制拖动距离在范围内
+            if x_center - drag_coefficient * offset <= 0:
+                drag_coefficient //= 2
+            elif drag_coefficient < 1:
+                drag_coefficient = 1
+
+            # 判断目标距离是否小于60秒
+            if abs(current_timestamp - target_timestamp) <= 60:
+                offset = 2
+                drag_coefficient = 1
+            elif abs(current_timestamp - target_timestamp) <= 600:
+                offset = 10
+                drag_coefficient = 1
+
+            if current_timestamp > target_timestamp:
+                # 向左拖动
+                self.driver.swipe(x_center, y_center, x_center + drag_coefficient * offset, y_center, duration=duration)
+                drag_left += 1
+            else:
+                # 向右拖动
+                self.driver.swipe(x_center, y_center, x_center - drag_coefficient * offset, y_center, duration=duration)
+                drag_right += 1
+
+            # 更新当前时间
+            current_timestamp = parse_time(tvtime.get_text())
+
+        print(f"时间轴已拖动到目标时间: {target_time}")
+
+    def switch_to_date(self, date_str: str):
+        """
+        后续需要优化，使用元素定位区域，然后再裁剪图片和滑动元素
+        """
+        # 获取手机显示的月份
+        date1_str = self.driver(resourceId="com.zwcode.p6slite:id/tv_current_time").get_text()
+
+        # 将字符串解析为 datetime 对象
+        date_time_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+
+        # 将 datetime 对象转换为时间元组
+        time_tuple = date_time_obj.timetuple()
+
+        # 提取年月
+        year_mount = f"{time_tuple[0]}-{time_tuple[1]:02d}"
+
+        while year_mount != date1_str:
+            print(year_mount, date1_str)
+            if not year_mount:
+                return
+            if year_mount > date1_str:
+                self.driver(resourceId="com.zwcode.p6slite:id/iv_next_month").click()
+            if year_mount < date1_str:
+                self.driver(resourceId="com.zwcode.p6slite:id/iv_previous_month").click()
+            # 获取手机显示的月份
+            date1_str = self.driver(resourceId="com.zwcode.p6slite:id/tv_current_time").get_text()
+
+        # 日期所处获取日历的坐标
+        week_of_month, weekday = ntp_util.get_calendar_position(date_str)
+        print("week_of_month, weekday", week_of_month, weekday)
+
+        # 通过父元素，className，index来定位日历元素
+        # 定位日历元素
+        calendar_element = (self.driver(resourceId="com.zwcode.p6slite:id/calendarview").
+                            child(className="android.widget.LinearLayout", index=0))[0]
+
+        # 定位周元素
+        week_element = calendar_element.child(className="android.widget.LinearLayout", index=week_of_month + 1)
+
+        # 定位day元素，并点击
+        week_element.child(className="android.view.View", index=weekday + 1).click()
+
+    def switch_to_time(self, date_str: str):
+        # 将字符串解析为 datetime 对象
+        date_time_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+
+        # 将 datetime 对象转换为时间元组
+        time_tuple = date_time_obj.timetuple()
+        # 定位时间元素，滑动
+        while True:
+            # 先截图，然后通过OCR识别图片中的文字
+            time.sleep(1)
+            screenshot_path = self.save_screenshotV1()
+
+            # 裁剪区域的坐标 (左, 上, 右, 下)
+            crop_area = (0, 2010, 1080, 2080)
+
+            # 进行 OCR
+            text = extract_text_from_image(screenshot_path, lang='chi_sim', crop_area=crop_area)
+            words = text.split()  # 默认以空格为分隔符
+
+            # 使用列表推导式去掉“时”、“分”、“秒”
+            cleaned_time_parts = [part.replace('时', '').replace('分', '').replace('秒', '') for part in words]
+
+            # 计算当前时分秒与目标的差值
+            hour_difference = int(cleaned_time_parts[0]) - time_tuple[3]
+            minute_difference = int(cleaned_time_parts[1]) - time_tuple[4]
+            second_difference = int(cleaned_time_parts[2]) - time_tuple[5]
+
+            if hour_difference == 0 and minute_difference == 0 and second_difference == 0:
+                break
+
+            # 滑动定位到时间
+            if hour_difference:
+                for i in range((24 - hour_difference) % 24):
+                    self.driver.swipe(180, 2043, 180, 2043 - 70, duration=0.1)
+            if minute_difference:
+                for i in range((60 - minute_difference) % 60):
+                    self.driver.swipe(540, 2043, 540, 2043 - 70, duration=0.1)
+            if second_difference:
+                for i in range((60 - second_difference) % 60):
+                    self.driver.swipe(900, 2043, 900, 2043 - 70, duration=0.1)
+
+    def open_notifications(self):
+        # 打开通知栏
+        screen_height = self.driver.info['displayHeight']
+        screen_width = self.driver.info['displayWidth']
+        self.driver.swipe(screen_width // 2, 0, screen_width // 2, screen_height * 0.75)
+
+    def close_notifications(self):
+        # 关闭通知栏
+        screen_height = self.driver.info['displayHeight']
+        screen_width = self.driver.info['displayWidth']
+        self.driver.swipe(screen_width // 2, screen_height, screen_width // 2, screen_height * 0.25)
 
     @staticmethod
     @printer
@@ -399,6 +665,9 @@ class UiAutomator2TestDriver:
             Returns:
                 None
             """
+        # 检查弹窗
+        self.handle_popup()
+
         # 根据步骤信息查找页面元素
         element = self.find_element(step)
         # 检查控件类型并执行相应操作
@@ -433,6 +702,18 @@ class UiAutomator2TestDriver:
             self.click_element_by_content_desc(content=content)
         elif step['控件类型'] == '可变文本':
             self.click_variable_text(content)
+        elif step['控件类型'] == '打开通知栏':
+            self.open_notifications()
+        elif step['控件类型'] == '关闭通知栏':
+            self.close_notifications()
+        elif step['控件类型'] == '选择日期':
+            self.switch_to_date(content)
+        elif step['控件类型'] == '选择时间':
+            self.switch_to_time(content)
+        elif step['控件类型'] == '拖动时间轴':
+            if content:
+                self.drag_timeline("com.zwcode.p6slite:id/time_line_view",
+                                   "com.zwcode.p6slite:id/tv_time", target_time=content, duration=0.1)
         elif step['控件类型'] == '切换网络':
             if content:
                 _ssid = content[0]

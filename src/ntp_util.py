@@ -1,3 +1,4 @@
+import calendar
 import time
 import ntplib
 from time import mktime, strptime
@@ -106,10 +107,10 @@ def get_coordinates(first_interval: tuple, second_interval: tuple, first_coordin
     timestamp_2 = str_time_to_timestamp(first_interval[1], '%H:%M')
     timestamp_3 = str_time_to_timestamp(second_interval[0], '%H:%M')
     timestamp_4 = str_time_to_timestamp(second_interval[1], '%H:%M')
-    seceond_coordinate_1 = (timestamp_3-timestamp_1)/(timestamp_2-timestamp_1) * (
-            first_coordinate[1]-first_coordinate[0]) + first_coordinate[0]
+    seceond_coordinate_1 = (timestamp_3 - timestamp_1) / (timestamp_2 - timestamp_1) * (
+            first_coordinate[1] - first_coordinate[0]) + first_coordinate[0]
     seceond_coordinate_2 = (timestamp_4 - timestamp_1) / (timestamp_2 - timestamp_1) * (
-                first_coordinate[1] - first_coordinate[0]) + first_coordinate[0]
+            first_coordinate[1] - first_coordinate[0]) + first_coordinate[0]
     return int(seceond_coordinate_1), int(seceond_coordinate_2)
 
 
@@ -119,9 +120,37 @@ def timestamp_to_date(format="%Y-%m-%d", today=0):
     formatted_date = time.strftime(format, time.localtime(timestamp))
     return formatted_date
 
+
+def get_calendar_position(date_str):
+    # 将字符串解析为 datetime 对象
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+
+    # 获取年份和月份
+    year = date_obj.year
+    month = date_obj.month
+    day = date_obj.day
+
+    # 获取当月的日历矩阵
+    cal = calendar.monthcalendar(year, month)
+
+    # 计算给定日期是当月的第几天
+    day_of_month = day
+
+    # 查找给定日期在日历矩阵中的位置
+    week_of_month = None
+    for week_index, week in enumerate(cal):
+        if day_of_month in week:
+            week_of_month = week_index
+            break
+
+    # 计算给定日期是星期几（0 表示星期一，6 表示星期日）
+    weekday = date_obj.weekday()
+
+    return week_of_month, weekday
+
+
 if __name__ == "__main__":
-    # print(get_formatted_ntp_time('%Y-%m-%d'))
-    # print(compare_time('00:00','01:00'))
-    # print(str_time_to_timestamp('10:00', '%H:%M'))
-    # print(get_coordinates(('10:00','13:00'), ('12:30','13:00'),(70,880)))
-    print(timestamp_to_date('%m'))
+    # 示例使用
+    date_str = "2024-11-20 12:00:00"
+    week_of_month, weekday = get_calendar_position(date_str)
+    print(f"给定日期 {date_str} 是当月的第 {week_of_month + 1} 周，星期 {weekday + 1}")

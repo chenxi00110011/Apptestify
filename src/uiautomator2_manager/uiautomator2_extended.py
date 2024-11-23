@@ -21,7 +21,7 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
     #     # compute_page_trust_score方法将计算并返回信任分数最高的页面名
     #     return self.digraph.compute_page_trust_score(page_content)
 
-    # @retry(retries=2)
+    @retry(retries=2)
     def go_to_page(self, *args):
         """
         跳转到指定页面，处理必要的交互。
@@ -52,7 +52,7 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
                 content = args[0]
                 args = args[1:]  # 移除已使用的参数
             # 执行点击或输入操作
-            print('#' * 50, step, content)
+            print('>>>', step, content)
             self.click_or_input(step, content)
 
         # 停止监听 弹窗
@@ -85,14 +85,16 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
 
 
 if __name__ == '__main__':
-    d = Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    app = Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     while True:
-        mode = int(input("请选择模式（获取页面名称1，获取页面元素0）：\t"))
+        mode = int(input("请选择模式（获取页面名称1，获取页面元素0,显示页面文本2）：\t"))
         if mode == 0:
             pageName = input('请手动跳转页面，并输出页面名称：')
-            d.getAllElement(pageName)
+            app.getAllElement(pageName)
         elif mode == 1:
-            d.get_current_page()
-        else:
-            raise Exception("输入错误")
+            app.get_current_page()
+        elif mode == 2:
+            print(app.driver.dump_hierarchy()[:len(app.driver.dump_hierarchy())//2])
 
+        else:
+            print("输入错误")
