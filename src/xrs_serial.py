@@ -139,6 +139,6 @@ def write_log(ser_port):
 
 
 if __name__ == '__main__':
-    serial_bitstream('com4', '断电', 6)
-    serial_bitstream('com4', '上电', 6)
+    serial_bitstream('com8', '断电', 6)
+    serial_bitstream('com8', '上电', 6)
 

@@ -1,9 +1,15 @@
 import os.path
 import time
 import pytest
+
+import ntp_util
 import uiautomator2_extended
 from adb_commands import AdbManager
 from config_module import get_config
+from router_config import read_config
+from image_popup import show_image
+import threading
+from device_reset import reset
 
 qrcodes = [
     ('v1.png', '001494'),
@@ -15,20 +21,30 @@ qrcodes = [
     ('v7.png', '000000')
 ]
 
+_config = read_config(r'..\..\config\device_info.ini')
+account_config = read_config(r'..\..\config\base.ini')
+parameter = [(account_config.get('睿博士测试手机账号', 'account'),
+              account_config.get('睿博士测试手机账号', 'pwd'),
+              _config.get('4G设备', 'did_2'),
+              _config.get('4G设备', 'name_2')
+              )]
+
 
 def get_share_qrcode(dev_name):
     # 启动睿博士app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(30)
     app.go_to_page('登录')
-    app.go_to_page('首页', '13638601129', 'cx123456')
+    app.go_to_page('首页', account_config.get('睿博士测试手机账号', 'account'),
+                   account_config.get('睿博士测试手机账号', 'pwd'))
     app.go_to_page('展示分享二维码', dev_name)
     app.driver.screenshot(filename="../../data/qr/v5.png")
     app.app_stop_()
 
 
+@pytest.mark.skip(reason="这个测试用例暂时不需要执行")
 @pytest.mark.parametrize("qrcode ,dev_name", qrcodes)
-@pytest.mark.repeat(10)
+@pytest.mark.repeat(1)
 def test_scan_v1_code(qrcode: str, dev_name: str):
     """
     测试步骤：
@@ -56,8 +72,8 @@ def test_scan_v1_code(qrcode: str, dev_name: str):
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(10)
     app.go_to_page('登录')
-    app.go_to_page('首页', '18086409233', 'cx123456')
-    print("#" * 200, dev_name)
+    app.go_to_page('首页', account_config.get('睿博士测试手机账号', 'account'),
+                   account_config.get('睿博士测试手机账号', 'pwd'))
     if app.exists_element(selector="text", value=dev_name):
         app.go_to_page('删除设备', dev_name)
     app.go_to_page('扫一扫')
@@ -75,3 +91,187 @@ def test_scan_v1_code(qrcode: str, dev_name: str):
     elif qrcode in ['v6.jpg', 'v7.png']:
         assert app.exists_element(selector="text", value='桌面版确认登录')
         assert app.exists_element(selector="text", value='登录')
+
+
+def show_image_in_thread(image_path, display_time):
+    thread = threading.Thread(target=show_image, args=(image_path, display_time))
+    thread.start()
+
+
+qrcodes = [
+    ('v1.png', _config.get('4G设备', 'name_2'), _config.get('4G设备', 'did_2')),
+    ('v2.png', _config.get('4G设备', 'name_2'), _config.get('4G设备', 'did_2')),
+    ('v3.png', _config.get('4G设备', 'name_2'), _config.get('4G设备', 'did_2')),
+    ('v3-1.png', _config.get('4G设备', 'name_2'), _config.get('4G设备', 'did_2'))
+]
+
+
+@pytest.mark.scanqr
+@pytest.mark.parametrize("qrcode, dev_name, did", qrcodes)
+@pytest.mark.repeat(1)
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_scan_device_qr_code(qrcode, dev_name, did):
+    # 设备复位
+    reset(did)
+    time.sleep(60)
+
+    # 第一步打开app，进入扫一扫
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    time.sleep(15)
+    app.go_to_page('登录')
+    app.go_to_page('首页', account_config.get('睿博士测试手机账号', 'account'),
+                   account_config.get('睿博士测试手机账号', 'pwd'))
+    if app.exists_element(selector="text", value=dev_name):
+        app.go_to_page('删除设备', dev_name)
+        time.sleep(5)
+
+    app.go_to_page('蓝牙搜索')
+
+    # 电脑桌面弹出图片
+    photo_path = os.path.join(get_config('睿博士').QR_DIR, qrcode)
+    print(f"Photo path: {photo_path}")
+    assert os.path.exists(photo_path), f"File not found at {photo_path}"
+    show_image_in_thread(photo_path, 5000)
+
+    # 检查是否添加成功
+    count = 0
+    start_time = int(time.time())
+    while not app.exists_element(selector="text", value='设备添加成功') and count < 60:
+        count += 1
+        time.sleep(1)
+    end_time = int(time.time())
+    app.title['shootName'] = ntp_util.timestamp_to_date(format="%H-%M-%S", today=0) + str(
+        end_time - start_time) + qrcode
+    app.save_screenshotV1()
+
+
+qrcodes = [
+    ('v4.png', _config.get('4G设备', 'name_2'), _config.get('4G设备', 'did_2')),
+]
+
+
+@pytest.mark.scanqr
+@pytest.mark.parametrize("qrcode, dev_name, did", qrcodes)
+@pytest.mark.repeat(1)
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_scan_qr_for_temp_password(qrcode, dev_name, did):
+    # 第一步打开app，进入扫一扫
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    time.sleep(15)
+    app.go_to_page('登录')
+    app.go_to_page('首页', account_config.get('睿博士测试手机账号', 'account'),
+                   account_config.get('睿博士测试手机账号', 'pwd'))
+
+    app.go_to_page('蓝牙搜索')
+
+    # 电脑桌面弹出图片
+    photo_path = os.path.join(get_config('睿博士').QR_DIR, qrcode)
+    print(f"Photo path: {photo_path}")
+    assert os.path.exists(photo_path), f"File not found at {photo_path}"
+    show_image_in_thread(photo_path, 5000)
+
+    # 检查是否添加成功
+    count = 0
+    start_time = int(time.time())
+    while not app.exists_element(selector="text", value='临时密码') and count < 60:
+        count += 1
+        time.sleep(1)
+    end_time = int(time.time())
+    app.title['shootName'] = ntp_util.timestamp_to_date(format="%H-%M-%S", today=0) + str(
+        end_time - start_time) + qrcode
+    app.save_screenshotV1()
+
+
+qrcodes = [
+    ('v6.jpg', _config.get('4G设备', 'name_2'), _config.get('4G设备', 'did_2')),
+    ('v7.png', _config.get('4G设备', 'name_2'), _config.get('4G设备', 'did_2'))
+]
+
+
+@pytest.mark.scanqr
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.parametrize("qrcode, dev_name, did", qrcodes)
+def test_scan_qr_to_login(qrcode, dev_name, did):
+    # 第一步打开app，进入扫一扫
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    time.sleep(15)
+    app.go_to_page('登录')
+    app.go_to_page('首页', account_config.get('睿博士测试手机账号', 'account'),
+                   account_config.get('睿博士测试手机账号', 'pwd'))
+
+    app.go_to_page('蓝牙搜索')
+
+    # 电脑桌面弹出图片
+    photo_path = os.path.join(get_config('睿博士').QR_DIR, qrcode)
+    print(f"Photo path: {photo_path}")
+    assert os.path.exists(photo_path), f"File not found at {photo_path}"
+    show_image_in_thread(photo_path, 5000)
+
+    # 检查是否添加成功
+    count = 0
+    start_time = int(time.time())
+    while not app.exists_element(selector="text", value='桌面版确认登录') and count < 60:
+        count += 1
+        time.sleep(1)
+    end_time = int(time.time())
+    app.title['shootName'] = ntp_util.timestamp_to_date(format="%H-%M-%S", today=0) + str(
+        end_time - start_time) + qrcode
+    app.save_screenshotV1()
+
+
+qrcodes = [
+    ('v7.png', _config.get('设备分享', 'name'), _config.get('设备分享', 'did')),
+]
+
+
+@pytest.mark.scanqr
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.parametrize("qrcode, name, did", qrcodes)
+def test_qr_code_share_device(qrcode, name, did):
+    # 设备复位
+    reset(did)
+
+    # 添加设备
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    time.sleep(15)
+    app.go_to_page("登录")
+    app.go_to_page('首页', account_config.get('睿博士测试手机账号', 'account'),
+                   account_config.get('睿博士测试手机账号', 'pwd'))
+    app.go_to_page('输入WiFi网络', did)
+    time.sleep(5)
+    app.go_to_page('设备添加成功', 'Ruision-work-CS2.4', 'ruision2024@cs')
+    assert app.exists_element(selector='text', value='设备添加成功')
+
+    # 分享设备
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    time.sleep(15)
+    app.run_parameters['rectangle'] = 1.0
+    app.go_to_page('首页', account_config.get('睿博士测试手机账号', 'account'),
+                   account_config.get('睿博士测试手机账号', 'pwd'))
+    app.go_to_page('二维码', name, '分享管理')
+
+    # 截图
+    bounds = app.driver(resourceId="com.zwcode.p6slite:id/qr_iv").info["bounds"]
+    photo_path = app.save_screenshotV1(bounds)
+
+    # 扫描分享二维码
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    time.sleep(15)
+    app.go_to_page('登录')
+    app.go_to_page('首页', account_config.get('睿博士测试手机备用账号', 'account'),
+                   account_config.get('睿博士测试手机备用账号', 'pwd'))
+
+    app.go_to_page('蓝牙搜索')
+
+    # 电脑桌面弹出图片
+    print(f"Photo path: {photo_path}")
+    assert os.path.exists(photo_path), f"File not found at {photo_path}"
+    show_image_in_thread(photo_path, 5000)
+
+    time.sleep(3)
+    app.driver(text="去连接").click()
+
+    # 检查是否已成功分享
+    app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
+    time.sleep(15)
+    assert app.exists_element(selector='text', value=name)

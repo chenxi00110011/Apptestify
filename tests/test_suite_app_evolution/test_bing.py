@@ -7,11 +7,27 @@ from router_config import modify_wifi, read_config, router_management, get_secti
 from adb_commands import AdbManager
 from device_reset import reset
 
+_config = read_config(r'..\..\config\device_info.ini')
+account_config = read_config(r'..\..\config\base.ini')
+parameter = [(account_config.get('睿博士测试手机账号', 'account'),
+              account_config.get('睿博士测试手机账号', 'pwd'),
+              _config.get('无线配网', 'did_1'),
+              _config.get('无线配网', 'name_1')
+              )]
 
-@pytest.mark.repeat(20)
-def test_bing_ap():
+
+@pytest.mark.bind
+@pytest.mark.parametrize("account ,pwd, did, name", parameter)
+@pytest.mark.repeat(1)
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_bing_ap(account, pwd, did, name):
     # 设备复位
-    reset()
+    reset(did)
+    time.sleep(30)
+
+    # 手机连接Wi-Fi
+    AdbManager.connect_network('H675FIS8JJU8AMWW', account_config.get('测试Wi-Fi', 'ssid'),
+                               account_config.get('测试Wi-Fi', 'wifi_password'))
 
     # 启动睿博士appblue
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -19,8 +35,11 @@ def test_bing_ap():
     app.go_to_page('首页', '13638601129', 'cx123456')
     app.go_to_page('添加设备')
     app.go_to_page('AP热点配网')
-    app.go_to_page('WLAN', 'Ruision-work-CS2.4', 'ruision2024@cs')
-    app.go_to_page('截图', 'ZWAP_IOTFAA-000086-MRNRJ')
+    app.go_to_page('WLAN', account_config.get('测试Wi-Fi', 'ssid'),
+                   account_config.get('测试Wi-Fi', 'wifi_password'))
+    app.go_to_page('截图', ('ZWAP_IOTFAA-000086-MRNRJ', '01234567'),
+                   (account_config.get('测试Wi-Fi', 'ssid'),
+                    account_config.get('测试Wi-Fi', 'wifi_password')))
     time.sleep(10)
     assert app.exists_element(selector='text', value='设备添加成功')
 
@@ -28,7 +47,8 @@ def test_bing_ap():
 @pytest.mark.repeat(20)
 def test_bing_wifi_qr():
     # # 设备复位
-    reset()
+    reset('ZWAP_IOTFAA-000086-MRNRJ')
+    time.sleep(30)
 
     # 启动睿博士app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -45,17 +65,20 @@ def test_bing_wifi_qr():
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
-@pytest.mark.repeat(20)
-# @pytest.mark.flaky(reruns=20, reruns_delay=5)
-def test_bing_bluetooth():
+@pytest.mark.bind
+@pytest.mark.repeat(1)
+@pytest.mark.parametrize("account, pwd, did, name", parameter)
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
+def test_bing_bluetooth(account, pwd, did, name):
     # # 设备复位
-    reset()
+    reset(did)
+    time.sleep(30)
 
     # 启动睿博士app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('首页', '13638601129', 'cx123456')
-    app.go_to_page('输入WiFi网络', 'IOTFAA-000086-MRNRJ')
+    app.go_to_page('首页', account, pwd)
+    app.go_to_page('输入WiFi网络', did)
     time.sleep(5)
     app.go_to_page('设备添加成功', 'Ruision-work-CS2.4', 'ruision2024@cs')
     # if app.exists_element(selector='text', value='设备添加失败'):
@@ -63,11 +86,14 @@ def test_bing_bluetooth():
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
-@pytest.mark.repeat(100)
+@pytest.mark.bind
+@pytest.mark.repeat(1)
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))
 def test_various_ssid_bluetooth(section):
     # 设备复位
-    reset()
+    reset(_config.get('无线配网', 'did_1'))
+    time.sleep(30)
 
     # 设置路由器ssid和密码
     print("本次测试路由器的SSID类型：\t", section)
@@ -98,10 +124,14 @@ def test_various_ssid_bluetooth(section):
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
+@pytest.mark.bind
+@pytest.mark.repeat(1)
+@pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))
 def test_various_ssid_ap(section):
     # 设备复位
-    reset()
+    reset(_config.get('无线配网', 'did_1'))
+    time.sleep(30)
 
     # 设置路由器ssid和密码
     print("本次测试路由器的SSID类型：\t", section)
@@ -135,7 +165,8 @@ def test_various_ssid_ap(section):
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))
 def test_various_ssid_qr(section):
     # 设备复位
-    reset()
+    reset(_config.get('无线配网', 'did_1'))
+    time.sleep(30)
 
     # 设置路由器ssid和密码
     print("本次测试路由器的SSID类型：\t", section)

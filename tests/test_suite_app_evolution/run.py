@@ -1,9 +1,5 @@
 import os
-import time
 
 for i in range(1):
-    os.system('pytest -vs -k test_enable_store_switch')
-    # os.system('pytest -vs -k test_logout')
-    # os.system('pytest -vs -k test_register')
-
-
+    os.system('pytest -vs -k test_enableCloudSwitch')
+    # os.system('pytest --tb=short --color=yes -m message')

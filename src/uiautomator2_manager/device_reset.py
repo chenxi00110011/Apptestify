@@ -1,7 +1,11 @@
 from ssh_client import SSHClient
 
 
-def reset():
+def reset(did):
+    dev_gpio = {
+        'IOTFAA-000086-MRNRJ': "reset_02.py",
+        'BOTDBB-007004-YHUHG': "reset_13.py"
+    }
     # 配置SSH连接参数
     hostname = '192.168.1.101'
     port = 22
@@ -16,7 +20,7 @@ def reset():
         ssh_client.connect()
 
         # 执行命令
-        command = 'python3 /home/chenxi/reset_02.py'
+        command = f'python3 /home/chenxi/{dev_gpio[did]}'
         output, error = ssh_client.execute_command(command)
         print(f"Command Output:\n{output}")
 
@@ -31,4 +35,4 @@ def reset():
 
 
 if __name__ == '__main__':
-    reset()
+    reset("IOTFAA-000086-MRNRJ")

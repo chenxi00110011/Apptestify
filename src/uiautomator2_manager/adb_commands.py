@@ -85,6 +85,28 @@ class AdbManager:
         command = AdbManager.CONNECT_NETWORK.format(ssid, pwd)
         return AdbManager.execute_command(deviceID, command)
 
+    @staticmethod
+    def clear_all_background_apps():
+        try:
+            # 检查设备是否连接
+            result = subprocess.run(['adb', 'devices'], capture_output=True, text=True)
+            if "device" not in result.stdout:
+                print("No device found. Please connect your Android device and enable USB debugging.")
+                return
+
+            # 按下最近任务键
+            subprocess.run(['adb', 'shell', 'input', 'keyevent', 'KEYCODE_APP_SWITCH'])
+
+            # 模拟滑动手势清除所有后台应用
+            # 这里假设屏幕分辨率为 1˜080x1920，你可以根据实际情况调整
+            for _ in range(5):  # 尝试滑动多次，确保清除所有应用
+                subprocess.run(['adb', 'shell', 'input', 'swipe', '500', '1500', '500', '500', '100'])
+
+            print("All background apps cleared.")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     from config_module import get_config
@@ -99,3 +121,4 @@ if __name__ == "__main__":
     #
 
     AdbManager.connect_network('H675FIS8JJU8AMWW', "ZWAP_IOTFAA-000086-MRNRJ", '01234567')
+    # AdbManager.clear_all_background_apps()

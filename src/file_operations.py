@@ -1,6 +1,7 @@
 import os
 import hashlib
 import re
+from datetime import datetime
 
 
 # from my_decorator import match_pattern_in_list, print_list_items
@@ -49,12 +50,24 @@ def get_file_md5(file_path):
     return md5_hash.hexdigest()
 
 
-if __name__ == '__main__':
-    # # Example usage:
-    # file_list = list_files(r"C:\Users\Administrator\Desktop\g固件包\easydebug\Sessions", "RELAY")
-    # print(sorted(file_list, key=str))
+# 定义一个函数来提取日期并转换为时间戳
+def parse_log_entry(entry, date_pattern):
+    # 使用正则表达式匹配日期时间
+    match = re.search(date_pattern, entry)
+    if match:
+        date_str = match.group(0)
 
-    # 使用示例
-    file_path = r'C:\Users\Administrator\Desktop\l临时升级包\EasyVMS_v4.5.0.864_RC20240902.exe'
-    md5_value = get_file_md5(file_path)
-    print(f"The MD5 hash of the file is: {md5_value}")
+        # 解析日期时间字符串
+        dt = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+
+        # 转换为时间戳
+        timestamp = dt.timestamp()
+
+        return timestamp
+    else:
+        return None
+
+
+if __name__ == '__main__':
+    date_pattern = r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})'
+    print(parse_log_entry("[AI IPC]2024-11-15 16:36:17有一个[移动侦测]事件", date_pattern))

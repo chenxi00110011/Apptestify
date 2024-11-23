@@ -14,6 +14,8 @@ def get_config(app_name: str):
         return ConfigManagerRUIBOSHI
     elif app_name == "好威智":
         return ConfigManagerHOLOZ
+    elif app_name == "微信":
+        return ConfigManagerHOLOZ
     else:
         raise Exception("请输入app名称")
 
@@ -63,7 +65,7 @@ class ConfigManagerRUIBOSHI:
     # 所有元素类型
     UI_CONTROLS_TYPE = ['按钮', '文本框', '勾选框', '单选按钮', '空值', '持续到页面跳转', '截图', '切换网络']
     # 需要输入内容的元素
-    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '可变文本', '切换网络']
+    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '可变文本', '切换网络', "拖动时间轴", "打开通知栏", "选择日期", "选择时间"]
     # 截图保存路径
     SCREENSHOT_PATH = rf"C:\Users\Administrator\Desktop\video\截图"
     # 存储手机截屏路径
@@ -92,7 +94,7 @@ class ConfigManagerHOLOZ:
     # 所有元素类型
     UI_CONTROLS_TYPE = ['按钮', '文本框', '勾选框', '单选按钮', '空值', '持续到页面跳转', '截图']
     # 需要输入内容的元素
-    UI_ELEMENTS = ['文本框', '单选按钮', '截图']
+    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '拖动时间轴']
     # 截图保存路径
     SCREENSHOT_PATH = rf"C:\Users\Administrator\Desktop\video\截图"
     # 存储手机截屏路径
@@ -109,6 +111,7 @@ class ConfigManagerTest:
     TRUST_LEVEL_TABLE = '置信表'
     APP_PACKAGE_NAME = 'com.zwcode.p6slite'
     APP_ACTIVITY_NAME = '.activity.SplashActivity'
-    TABLE_HEADERS = ['页面名称', '相邻页面', 'resource-id', 'bounds', 'text', '控件类型', '默认值', '置信度', '等待时间']
+    TABLE_HEADERS = ['页面名称', '相邻页面', 'resource-id', 'bounds', 'text', '控件类型', '默认值', '置信度',
+                     '等待时间']
     ATTRIBUTE_LIST = ['text', 'resource-id']
     # print(ConfigManagerRUIBOSHI.PAGE_ELEMENT_FILE_PATH)
