@@ -55,8 +55,12 @@ def test_enableCloudSwitch(account, pwd, did, name):
 
 
 # 录制云存视频，并通过微信分享
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloudRecordAndShare(account1, pwd1, did, name):
+    # 用例名称
+    case_name = "云录像本地录制并分享"
+
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -90,8 +94,12 @@ def test_cloudRecordAndShare(account1, pwd1, did, name):
     app.driver(text="清空").click()
 
 
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloudCapture(account1, pwd1, did, name):
+    # 用例名称
+    case_name = "云录像回放抓图"
+
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -118,8 +126,12 @@ def test_cloudCapture(account1, pwd1, did, name):
 
 # 云录像回放中拖动时间轴播放
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloud_seek(account1, pwd1, did, name):
+    # 用例名称
+    case_name = "云录像回放中拖动时间轴播放"
+
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -151,8 +163,12 @@ def test_cloud_seek(account1, pwd1, did, name):
 
 # 进入云存检查时间轴初始位置
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
-def test_check_timeline_initial_position(account1, pwd1, did, name):
+def test_check_timeline_initial_position_01(account1, pwd1, did, name):
+    # 用例名称
+    case_name = "第一次进入云回放时间轴初始位置"
+
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -175,8 +191,12 @@ def test_check_timeline_initial_position(account1, pwd1, did, name):
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_check_timeline_initial_position_after_cloud_storage_disabled(account1, pwd1, did, name):
+    # 用例名称
+    case_name = "关闭云存开关后，检查时间轴初始位置"
+
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -207,13 +227,18 @@ def test_check_timeline_initial_position_after_cloud_storage_disabled(account1, 
     # 获取当前日期的0点时间戳
     timestamp_0 = int(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
 
+    # 截图
+    app.title["shootName"] = case_name + str(int(time.time()) % 10000) + ".jpg"
+    app.save_screenshotV1()
+
     # 对比当前时间与初始位置
     timestamp_now = int(time.time())
-
     assert abs((timestamp_now - timestamp_0) - (timestamp + 1200)) < 120
 
 
 # 云录像回放中切换不同日期时间播放
+
+@pytest.mark.skip(reason="This test is temporarily disabled")
 @pytest.mark.repeat(1)
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloud_playback_controller(account1, pwd1, did, name):
@@ -238,8 +263,12 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 # 使用支付宝购买云存套餐失败
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name, payment_password", parameter)
 def test_handle_alipay_payment_failure(account1, pwd1, did, name, payment_password):
+    # 用例名称
+    case_name = "使用支付宝购买云存套餐失败"
+
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -248,8 +277,8 @@ def test_handle_alipay_payment_failure(account1, pwd1, did, name, payment_passwo
     time.sleep(5)
     app.go_to_page('云服务管理', name)
 
-    # 检查套餐是否已开通
-    assert app.exists_element(selector="text", value="未开通")
+    # 检查云存储套餐是否未开通
+    assert not app.exists_element(selector="text", value="已开通")
 
     # 选择套餐并跳转到支付页面
     app.go_to_page('支付宝购买连续录像')
@@ -273,12 +302,16 @@ def test_handle_alipay_payment_failure(account1, pwd1, did, name, payment_passwo
     time.sleep(3)
 
     # 检查云存储套餐是否未开通
-    assert app.exists_element(selector="text", value="未开通")
+    assert not app.exists_element(selector="text", value="已开通")
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name, payment_password", parameter)
 def test_handle_alipay_payment_success(account1, pwd1, did, name, payment_password):
+    # 用例名称
+    case_name = "云存储套餐支付宝购买支付成功"
+
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -343,8 +376,12 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name, payment_password", parameter)
 def test_handle_wechat_payment_failure(account1, pwd1, did, name, payment_password):
+    # 用例名称
+    case_name = "云存储套餐微信购买支付失败"
+
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -386,9 +423,12 @@ def test_handle_wechat_payment_failure(account1, pwd1, did, name, payment_passwo
     assert app.exists_element(selector="text", value="未开通")
 
 
+@pytest.mark.cloud
 @pytest.mark.repeat(1)
 @pytest.mark.parametrize("account1, pwd1, did, name, payment_password", parameter)
 def test_handle_wechat_payment_success(account1, pwd1, did, name, payment_password):
+    # 用例名称
+    case_name = "云存储套餐微信购买支付成功"
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -456,11 +496,12 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloud_storage_button_with_active_subscription(account1, pwd1, did, name):
-    """
-    测试设备已开通未过期的情况下，点击APP首页云存储按钮的功能。
-    """
+    # 用例名称
+    case_name = "设备已开通未过期，点击APP首页云存储按钮"
+
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -486,11 +527,12 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloud_storage_button_with_inactive_subscription(account1, pwd1, did, name):
-    """
-    测试设备未开通云存储服务的情况下，点击APP首页云存储按钮的功能。
-    """
+    # 用例名称
+    case_name = "设备未开通，点击APP首页云存储按钮"
+
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
@@ -520,11 +562,11 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_handle_expired_cloud_storage(account1, pwd1, did, name):
-    """
-    测试设备云存已过期的情况下，点击APP首页云存储按钮的功能。
-    """
+    # 用例名称
+    case_name = "设备开通云存储已过期，点击APP首页云存储按钮"
 
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -552,11 +594,11 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name, payment_password", parameter)
 def test_renew_expired_package(account1, pwd1, did, name, payment_password):
-    """
-    测试设备云存已过期的情况下，再次开通云存储套餐
-    """
+    # 用例名称
+    case_name = "云服务套餐续费"
 
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -624,8 +666,12 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_change_playback_time_seek_to_recorded_segment(account1, pwd1, did, name):
+    # 用例名称
+    case_name = "云录像回放中切换不同日期时间播放"
+
     # 获取当前日期
     current_date = datetime.now()
     # 计算前一天的日期
@@ -654,8 +700,12 @@ def test_change_playback_time_seek_to_recorded_segment(account1, pwd1, did, name
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_change_playback_time_seek_to_no_recording(account1, pwd1, did, name):
+    # 用例名称
+    case_name = "云录像回放中点击没有录像的日期"
+
     # 获取当前日期
     current_date = datetime.now()
     # 计算前一天的日期

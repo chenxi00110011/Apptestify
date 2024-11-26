@@ -332,7 +332,6 @@ class UiAutomator2TestDriver:
 
         # 判断是否需要对图片进行处理
         if bounds is None:
-            print(">>>here----")
             return screenshot_path
 
         # 对图片进行裁剪
