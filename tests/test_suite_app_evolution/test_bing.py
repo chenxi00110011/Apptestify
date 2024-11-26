@@ -29,7 +29,7 @@ def test_bing_ap(account, pwd, did, name):
     AdbManager.connect_network('H675FIS8JJU8AMWW', account_config.get('测试Wi-Fi', 'ssid'),
                                account_config.get('测试Wi-Fi', 'wifi_password'))
 
-    # 启动睿博士appblue
+    # 启动睿博士app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
     app.go_to_page('首页', '13638601129', 'cx123456')
