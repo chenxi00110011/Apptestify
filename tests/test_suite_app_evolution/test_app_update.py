@@ -14,6 +14,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.test_environment
 @pytest.mark.parametrize("account1, pwd1", parameter)
 def test_app_update(account1, pwd1):
     # 前置条件

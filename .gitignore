@@ -8,3 +8,13 @@
 **/qr/
 **/__pycache__/
 **/data/
+
+# Ignore Allure report and results directories
+allure-report/
+allure-results/
+
+# Ignore video recordings
+videos/
+
+
+

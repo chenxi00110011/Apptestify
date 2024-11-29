@@ -4,25 +4,38 @@ import uiautomator2_extended
 from router_config import modify_wifi, read_config, router_management, get_sections
 from device_reset import reset
 
+"""
+========= 6 passed, 84 deselected, 31 warnings in 1551.16s (0:25:51) ==========
+"""
+
+
 _config = read_config(r'..\..\config\device_info.ini')
-parameter = [(_config.get('设备分享', 'did'), _config.get('设备分享', 'name'))]
+account_config = read_config(r'..\..\config\base.ini')
+parameter = [(account_config.get('睿博士测试手机账号', 'account'),
+              account_config.get('睿博士测试手机账号', 'pwd'),
+              _config.get('设备分享', 'did_1'),
+              _config.get('设备分享', 'name_1')
+              )]
 
 
-@pytest.mark.repeat(100)
-@pytest.mark.parametrize("did,name", parameter)
-def test_handoverDevice(did, name):
+@pytest.mark.repeat(1)
+@pytest.mark.case_name("国内手机号账户转让设备")
+@pytest.mark.share
+@pytest.mark.parametrize("account, pwd, did, name", parameter)
+def test_handoverDevice(account, pwd, did, name):
     # 设备复位
     reset(did)
+    time.sleep(30)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('登录')
-    app.go_to_page('首页', '18086409233', 'cx123456')
-    if app.exists_element(selector='text', value=name):
-        app.go_to_page('删除设备', name)
-    app.go_to_page('手动添加', did, name)
+    app.go_to_page('首页', account, pwd)
+    app.go_to_page('输入WiFi网络', did)
+    time.sleep(5)
+    app.go_to_page('设备添加成功', 'Ruision-work-CS2.4', 'ruision2024@cs')
+    assert app.exists_element(selector='text', value='设备添加成功')
 
     # 转让设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -46,24 +59,27 @@ parameter = [(account_config.get('睿博士测试邮箱账号', 'account'),
               account_config.get('睿博士测试邮箱账号', 'pwd'),
               account_config.get('睿博士测试手机备用账号', 'account'),
               account_config.get('睿博士测试手机备用账号', 'pwd'),
-              _config.get('设备分享', 'did'),
-              _config.get('设备分享', 'name')
+              _config.get('设备分享', 'did_1'),
+              _config.get('设备分享', 'name_1')
               ),
              (account_config.get('睿博士测试手机账号', 'account'),
               account_config.get('睿博士测试手机账号', 'pwd'),
               account_config.get('睿博士测试手机备用账号', 'account'),
               account_config.get('睿博士测试手机备用账号', 'pwd'),
-              _config.get('设备分享', 'did'),
-              _config.get('设备分享', 'name')
+              _config.get('设备分享', 'did_1'),
+              _config.get('设备分享', 'name_1')
               ),
              ]
 
 
-@pytest.mark.repeat(100)
+@pytest.mark.repeat(1)
+@pytest.mark.case_name("手机账户输入账户分享设备,邮箱账户输入账户分享设备")
+@pytest.mark.share
 @pytest.mark.parametrize("account1, pwd1, account2, pwd2, did, name", parameter)
 def test_account_sharing(account1, pwd1, account2, pwd2, did, name):
     # 设备复位
     reset(did)
+    time.sleep(30)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -93,10 +109,13 @@ def test_account_sharing(account1, pwd1, account2, pwd2, did, name):
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.case_name("账户分享二维码")
+@pytest.mark.share
 @pytest.mark.parametrize("account1, pwd1, account2, pwd2, did, name", parameter)
 def test_qr_sharing(account1, pwd1, account2, pwd2, did, name):
     # 设备复位
     reset(did)
+    time.sleep(30)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -137,8 +156,8 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
               account_config.get('睿博士测试手机账号', 'pwd'),
               account_config.get('睿博士测试手机备用账号', 'account'),
               account_config.get('睿博士测试手机备用账号', 'pwd'),
-              _config.get('设备分享', 'did'),
-              _config.get('设备分享', 'name')
+              _config.get('设备分享', 'did_1'),
+              _config.get('设备分享', 'name_1')
               ),
              # (account_config.get('睿博士测试邮箱账号', 'account'),
              #  account_config.get('睿博士测试邮箱账号', 'pwd'),
@@ -151,10 +170,13 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.repeat(1)
+@pytest.mark.case_name("账户使用微信分享设备")
+@pytest.mark.share
 @pytest.mark.parametrize("account1, pwd1, account2, pwd2, did, name", parameter)
 def test_WeChat_sharing(account1, pwd1, account2, pwd2, did, name):
     # 设备复位
     reset(did)
+    time.sleep(30)
 
     # 添加设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')

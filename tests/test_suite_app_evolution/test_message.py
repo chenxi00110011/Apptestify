@@ -13,8 +13,10 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
               )]
 
 
+@pytest.mark.case_name("检查云消息")
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.message
+@pytest.mark.test_environment
 @pytest.mark.repeat(1)
 @pytest.mark.parametrize("account, pwd, did, name", parameter)
 def test_get_event(account, pwd, did, name):
@@ -37,8 +39,10 @@ parameter = [(config.get('睿博士测试手机账号', 'account'),
               )]
 
 
+@pytest.mark.case_name("检查通知栏的消息")
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.message
+@pytest.mark.test_environment
 @pytest.mark.repeat(1)
 @pytest.mark.parametrize("account1, pwd1, date_pattern", parameter)
 def test_shangyun_push_message(account1, pwd1, date_pattern):
