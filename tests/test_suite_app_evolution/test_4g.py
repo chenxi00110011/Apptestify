@@ -15,7 +15,10 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
               )]
 
 
+@pytest.mark.case_name("测试在中国服环境下，设备正常显示4G图标")
 @pytest.mark.repeat(1)
+@pytest.mark.dev_4g
+@pytest.mark.test_environment
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_4g_icon_display_on_china_server(account1, pwd1, did, name):
     """

@@ -106,7 +106,9 @@ qrcodes = [
 ]
 
 
+@pytest.mark.case_name("扫描v1v2v3码")
 @pytest.mark.scanqr
+@pytest.mark.test_environment
 @pytest.mark.parametrize("qrcode, dev_name, did", qrcodes)
 @pytest.mark.repeat(1)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
@@ -143,6 +145,7 @@ def test_scan_device_qr_code(qrcode, dev_name, did):
     app.title['shootName'] = ntp_util.timestamp_to_date(format="%H-%M-%S", today=0) + str(
         end_time - start_time) + qrcode
     app.save_screenshotV1()
+    assert app.exists_element(selector="text", value='设备添加成功')
 
 
 qrcodes = [
@@ -150,7 +153,9 @@ qrcodes = [
 ]
 
 
+@pytest.mark.case_name("扫码生成临时密码")
 @pytest.mark.scanqr
+@pytest.mark.test_environment
 @pytest.mark.parametrize("qrcode, dev_name, did", qrcodes)
 @pytest.mark.repeat(1)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
@@ -180,6 +185,7 @@ def test_scan_qr_for_temp_password(qrcode, dev_name, did):
     app.title['shootName'] = ntp_util.timestamp_to_date(format="%H-%M-%S", today=0) + str(
         end_time - start_time) + qrcode
     app.save_screenshotV1()
+    assert app.exists_element(selector="text", value='临时密码')
 
 
 qrcodes = [
@@ -188,7 +194,9 @@ qrcodes = [
 ]
 
 
+@pytest.mark.case_name("扫码登录NVR和VMS")
 @pytest.mark.scanqr
+@pytest.mark.test_environment
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.parametrize("qrcode, dev_name, did", qrcodes)
 def test_scan_qr_to_login(qrcode, dev_name, did):
@@ -217,14 +225,17 @@ def test_scan_qr_to_login(qrcode, dev_name, did):
     app.title['shootName'] = ntp_util.timestamp_to_date(format="%H-%M-%S", today=0) + str(
         end_time - start_time) + qrcode
     app.save_screenshotV1()
+    assert app.exists_element(selector="text", value='桌面版确认登录')
 
 
 qrcodes = [
-    ('v7.png', _config.get('设备分享', 'name'), _config.get('设备分享', 'did')),
+    ('v5.png', _config.get('设备分享', 'name_1'), _config.get('设备分享', 'did_1')),
 ]
 
 
+@pytest.mark.case_name("扫码分享设备")
 @pytest.mark.scanqr
+@pytest.mark.test_environment
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.parametrize("qrcode, name, did", qrcodes)
 def test_qr_code_share_device(qrcode, name, did):

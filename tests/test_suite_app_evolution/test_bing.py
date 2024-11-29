@@ -16,7 +16,9 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
               )]
 
 
+@pytest.mark.case_name("AP配网绑定")
 @pytest.mark.bind
+@pytest.mark.test_environment
 @pytest.mark.parametrize("account ,pwd, did, name", parameter)
 @pytest.mark.repeat(1)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
@@ -65,11 +67,16 @@ def test_bing_wifi_qr():
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
+@pytest.mark.case_name("蓝牙配网绑定")
 @pytest.mark.bind
+@pytest.mark.test_environment
 @pytest.mark.repeat(1)
 @pytest.mark.parametrize("account, pwd, did, name", parameter)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_bing_bluetooth(account, pwd, did, name):
+    # 用例名称
+    case_name = "蓝牙配网绑定"
+
     # # 设备复位
     reset(did)
     time.sleep(30)
@@ -86,7 +93,9 @@ def test_bing_bluetooth(account, pwd, did, name):
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
+@pytest.mark.case_name("路由器为中英文时，蓝牙配网")
 @pytest.mark.bind
+@pytest.mark.test_environment
 @pytest.mark.repeat(1)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))
@@ -124,7 +133,9 @@ def test_various_ssid_bluetooth(section):
     assert app.exists_element(selector='text', value='设备添加成功')
 
 
+@pytest.mark.case_name("路由器为中英文时，AP配网")
 @pytest.mark.bind
+@pytest.mark.test_environment
 @pytest.mark.repeat(1)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 @pytest.mark.parametrize("section", get_sections(r'..\..\config\router.ini'))

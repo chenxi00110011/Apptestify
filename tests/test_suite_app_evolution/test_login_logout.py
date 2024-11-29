@@ -13,7 +13,9 @@ parameter = [(account_config.get('睿博士测试邮箱账号', 'account'),
 
 
 @pytest.mark.login_logout
+@pytest.mark.case_name("邮箱账户注销")
 @pytest.mark.repeat(1)
+@pytest.mark.test_environment
 @pytest.mark.parametrize("account, pwd", parameter)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_logout_email(account, pwd):
@@ -29,7 +31,9 @@ def test_logout_email(account, pwd):
 
 
 @pytest.mark.login_logout
+@pytest.mark.case_name("邮箱账户注册")
 @pytest.mark.repeat(1)
+@pytest.mark.test_environment
 @pytest.mark.parametrize("account, pwd", parameter)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_register_email(account, pwd):
