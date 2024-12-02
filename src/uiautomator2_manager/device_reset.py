@@ -4,7 +4,8 @@ from ssh_client import SSHClient
 def reset(did):
     dev_gpio = {
         'IOTFAA-000086-MRNRJ': "reset_02.py",
-        'BOTDBB-007004-YHUHG': "reset_13.py"
+        'BOTDBB-007004-YHUHG': "reset_13.py",
+        'IOTFAA-705280-EDGCR': "reset_04.py"
     }
     # 配置SSH连接参数
     hostname = '192.168.1.101'

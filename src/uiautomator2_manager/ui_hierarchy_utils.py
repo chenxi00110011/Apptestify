@@ -4,6 +4,7 @@ from lxml import etree
 # 连接到设备
 d = u2.connect()
 
+
 # 定义一个函数来查找元素
 def find_elements(root, text):
     elems = []
@@ -76,19 +77,18 @@ def get_level_differences(d, element1_text, element2_text):
                 level_diffs.append(level_diff)
             else:
                 print("无法计算两个节点之间的层级差（没有共同的祖先节点）")
-
     # 返回层级最小元素的下标
     return level_diffs.index(min(level_diffs))
 
 
 if __name__ == "__main__":
 
-    element1_text = "355259"
+    element1_text = "000086"
     element2_text = "消息"
 
     level_diffs = get_level_differences(d, element1_text, element2_text)
 
-    if level_diffs:
+    if level_diffs is not None:
         print(f"下标为 {level_diffs}的元素")
     else:
         print("没有找到有效的层级差")

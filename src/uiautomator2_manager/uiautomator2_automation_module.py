@@ -436,16 +436,9 @@ class UiAutomator2TestDriver:
                 by = "text"
                 localized_elements = self.localize_element(localization_method=by, edges=selection_criteria)
 
-            # # 定位离content文字最近的控件
-            # closest_element = self.get_closest_element(text=content, elements=localized_elements, mode='DOWN')
-            # print(closest_element)
-            # closest_element.click()
-
-            # 判断类型是否为列表，不是则直接点击
-            # print(type(localized_elements), len(localized_elements))
             if len(localized_elements) > 1:
                 # 找到层级最近元素的下标
-                index = get_level_differences(self.driver, content, selection_criteria[by], by)
+                index = get_level_differences(self.driver, content, selection_criteria[by])
                 localized_elements[index].click()
             elif len(localized_elements) == 1:
                 localized_elements.click()

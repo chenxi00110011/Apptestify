@@ -85,7 +85,7 @@ def record_video(request):
 
     # 获取当前时间并格式化为字符串（仅时分秒）
     timestamp = datetime.now().strftime("%H%M%S")
-    case_name_with_timestamp = f"{case_name}_{timestamp}"
+    case_name_with_timestamp = f"{timestamp}_{case_name}"
 
     # 执行用例前开始录像
     start_recording(case_name_with_timestamp)

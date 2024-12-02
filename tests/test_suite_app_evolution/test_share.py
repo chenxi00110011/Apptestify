@@ -8,21 +8,81 @@ from device_reset import reset
 ========= 6 passed, 84 deselected, 31 warnings in 1551.16s (0:25:51) ==========
 """
 
-
 _config = read_config(r'..\..\config\device_info.ini')
 account_config = read_config(r'..\..\config\base.ini')
-parameter = [(account_config.get('睿博士测试手机账号', 'account'),
-              account_config.get('睿博士测试手机账号', 'pwd'),
-              _config.get('设备分享', 'did_1'),
-              _config.get('设备分享', 'name_1')
-              )]
+parameter = [
+    # 国内手机账户转让设备
+    (account_config.get('睿博士正式服账号', '中国手机账户_1'),
+     account_config.get('睿博士正式服账号', '中国手机密码_1'),
+     _config.get('设备分享', 'did_1'),
+     _config.get('设备分享', 'name_1'),
+     account_config.get('睿博士正式服账号', '中国邮箱账号_1'),
+     account_config.get('睿博士正式服账号', '中国邮箱密码_1'),
+     account_config.get('睿博士正式服账号', '中国区号')
+
+     ),
+    # 国内邮箱账户转让设备
+    (account_config.get('睿博士正式服账号', '中国邮箱账号_1'),
+     account_config.get('睿博士正式服账号', '中国邮箱密码_1'),
+     _config.get('设备分享', 'did_1'),
+     _config.get('设备分享', 'name_1'),
+     account_config.get('睿博士正式服账号', '中国手机账户_1'),
+     account_config.get('睿博士正式服账号', '中国手机密码_1'),
+     account_config.get('睿博士正式服账号', '中国区号')
+     ),
+    # 国际手机账户转让设备
+    (account_config.get('睿博士正式服账号', '泰国手机账户_1'),
+     account_config.get('睿博士正式服账号', '泰国手机密码_1'),
+     _config.get('设备分享', 'did_1'),
+     _config.get('设备分享', 'name_1'),
+     account_config.get('睿博士正式服账号', '国际邮箱账户_1'),
+     account_config.get('睿博士正式服账号', '国际邮箱密码_1'),
+     account_config.get('睿博士正式服账号', '中国区号')
+     ),
+    # 国际邮箱账户转让设备
+    (account_config.get('睿博士正式服账号', '国际邮箱账户_1'),
+     account_config.get('睿博士正式服账号', '国际邮箱密码_1'),
+     _config.get('设备分享', 'did_1'),
+     _config.get('设备分享', 'name_1'),
+     account_config.get('睿博士正式服账号', '泰国手机账户_1'),
+     account_config.get('睿博士正式服账号', '泰国手机密码_1'),
+     account_config.get('睿博士正式服账号', '中国区号')
+     ),
+    # 美服手机账户转让设备
+    (account_config.get('睿博士正式服账号', '美服手机账户_1'),
+     account_config.get('睿博士正式服账号', '美服手机密码_1'),
+     _config.get('设备分享', 'did_1'),
+     _config.get('设备分享', 'name_1'),
+     account_config.get('睿博士正式服账号', '美服邮箱账户_1'),
+     account_config.get('睿博士正式服账号', '美服邮箱密码_1'),
+     account_config.get('睿博士正式服账号', '中国区号')
+     ),
+    # 美服邮箱账户转让设备
+    (account_config.get('睿博士正式服账号', '美服邮箱账户_1'),
+     account_config.get('睿博士正式服账号', '美服邮箱密码_1'),
+     _config.get('设备分享', 'did_1'),
+     _config.get('设备分享', 'name_1'),
+     account_config.get('睿博士正式服账号', '美服手机账户_1'),
+     account_config.get('睿博士正式服账号', '美服手机密码_1'),
+     account_config.get('睿博士正式服账号', '中国区号')
+     ),
+    # 欧服邮箱账户转让设备
+    (account_config.get('睿博士正式服账号', '欧服邮箱账户_1'),
+     account_config.get('睿博士正式服账号', '欧服邮箱密码_1'),
+     _config.get('设备分享', 'did_1'),
+     _config.get('设备分享', 'name_1'),
+     account_config.get('睿博士正式服账号', '欧服邮箱账户_2'),
+     account_config.get('睿博士正式服账号', '欧服邮箱密码_2'),
+     account_config.get('睿博士正式服账号', '中国区号')
+     )
+]
 
 
 @pytest.mark.repeat(1)
-@pytest.mark.case_name("国内手机号账户转让设备")
-@pytest.mark.share
-@pytest.mark.parametrize("account, pwd, did, name", parameter)
-def test_handoverDevice(account, pwd, did, name):
+@pytest.mark.case_name("国内国际，手机账户邮箱账户，转让设备")
+@pytest.mark.share_test
+@pytest.mark.parametrize("account, pwd, did, name, share_account, share_pwd, areaCode", parameter)
+def test_handoverDevice(account, pwd, did, name, share_account, share_pwd, areaCode):
     # 设备复位
     reset(did)
     time.sleep(30)
@@ -41,15 +101,16 @@ def test_handoverDevice(account, pwd, did, name):
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
     app.run_parameters['rectangle'] = 1.0
-    app.go_to_page('首页', '18086409233', 'cx123456')
-    app.go_to_page('转让设备', name, '分享管理', '13638601129')
+    app.go_to_page('首页')
+    app.go_to_page('转让设备', name, '分享管理', share_account)
 
     # 收受设备
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
     app.go_to_page('登录')
-    app.go_to_page('首页', '13638601129', 'cx123456')
+    app.go_to_page('首页', share_account, share_pwd)
     app.go_to_page('接受')
+    time.sleep(5)
     assert app.exists_element(selector='text', value=name)
 
 

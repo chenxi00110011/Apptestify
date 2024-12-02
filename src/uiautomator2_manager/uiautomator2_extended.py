@@ -21,7 +21,7 @@ class Uiautomator2SophisticatedExecutor(UiAutomator2TestDriver):
     #     # compute_page_trust_score方法将计算并返回信任分数最高的页面名
     #     return self.digraph.compute_page_trust_score(page_content)
 
-    @retry(retries=2)
+    # @retry(retries=2)
     def go_to_page(self, *args):
         """
         跳转到指定页面，处理必要的交互。

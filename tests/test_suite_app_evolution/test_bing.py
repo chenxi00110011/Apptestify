@@ -12,12 +12,16 @@ account_config = read_config(r'..\..\config\base.ini')
 parameter = [(account_config.get('睿博士测试手机账号', 'account'),
               account_config.get('睿博士测试手机账号', 'pwd'),
               _config.get('无线配网', 'did_1'),
-              _config.get('无线配网', 'name_1')
-              )]
+              _config.get('无线配网', 'name_1')),
+             (account_config.get('睿博士测试手机账号', 'account'),
+              account_config.get('睿博士测试手机账号', 'pwd'),
+              _config.get('海思蓝牙', 'did_1'),
+              _config.get('海思蓝牙', 'name_1'))
+             ]
 
 
 @pytest.mark.case_name("AP配网绑定")
-@pytest.mark.bind
+@pytest.mark.bind_test
 @pytest.mark.test_environment
 @pytest.mark.parametrize("account ,pwd, did, name", parameter)
 @pytest.mark.repeat(1)
@@ -39,7 +43,7 @@ def test_bing_ap(account, pwd, did, name):
     app.go_to_page('AP热点配网')
     app.go_to_page('WLAN', account_config.get('测试Wi-Fi', 'ssid'),
                    account_config.get('测试Wi-Fi', 'wifi_password'))
-    app.go_to_page('截图', ('ZWAP_IOTFAA-000086-MRNRJ', '01234567'),
+    app.go_to_page('截图', (f'ZWAP_{did}', '01234567'),
                    (account_config.get('测试Wi-Fi', 'ssid'),
                     account_config.get('测试Wi-Fi', 'wifi_password')))
     time.sleep(10)
@@ -74,9 +78,6 @@ def test_bing_wifi_qr():
 @pytest.mark.parametrize("account, pwd, did, name", parameter)
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_bing_bluetooth(account, pwd, did, name):
-    # 用例名称
-    case_name = "蓝牙配网绑定"
-
     # # 设备复位
     reset(did)
     time.sleep(30)
