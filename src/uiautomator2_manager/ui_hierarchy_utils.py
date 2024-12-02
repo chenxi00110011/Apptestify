@@ -11,7 +11,8 @@ def find_elements(root, text):
     for elem in root.iter():
         if 'text' in elem.attrib and elem.attrib['text'] == text:
             elems.append(elem)
-
+        elif 'resource-id' in elem.attrib and elem.attrib['resource-id'] == text:
+            elems.append(elem)
     return elems
 
 
@@ -84,7 +85,7 @@ def get_level_differences(d, element1_text, element2_text):
 if __name__ == "__main__":
 
     element1_text = "000086"
-    element2_text = "消息"
+    element2_text = "com.zwcode.p6slite:id/device_set"
 
     level_diffs = get_level_differences(d, element1_text, element2_text)
 
