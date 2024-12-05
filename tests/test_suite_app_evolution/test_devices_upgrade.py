@@ -18,7 +18,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 @pytest.mark.repeat(1)
 @pytest.mark.case_name("ipc云升级")
-@pytest.mark.share
+@pytest.mark.upgrade
 @pytest.mark.test_environment
 @pytest.mark.parametrize("account, pwd, did, name", parameter)
 def test_ipc_upgrade(account, pwd, did, name):
@@ -53,7 +53,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 @pytest.mark.repeat(1)
 @pytest.mark.case_name("nvr云升级")
-@pytest.mark.share
+@pytest.mark.upgrade
 @pytest.mark.test_environment
 @pytest.mark.parametrize("account, pwd, did, name", parameter)
 def test_nvr_upgrade(account, pwd, did, name):

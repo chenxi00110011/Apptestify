@@ -6,11 +6,15 @@ import os
 import subprocess
 import time
 import console_ctrl
+from adb_commands import AdbManager as adb, AdbManager
 
 
 # 定义 fixture 来连接 Wi-Fi
 @pytest.fixture(scope="function", autouse=True)
 def connect_to_wifi():
+    # # 点亮屏幕和解锁
+    adb.execute_command('H675FIS8JJU8AMWW', adb.LIGHT_UP_SCREEN)
+    adb.execute_command('H675FIS8JJU8AMWW', adb.UNLOCK_SCREEN)
     # 手机连接Wi-Fi
     AdbManager.connect_network('H675FIS8JJU8AMWW', 'Ruision-work-CS5', 'ruision2024@cs')
     AdbManager.clear_all_background_apps()

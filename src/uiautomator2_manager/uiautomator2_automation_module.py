@@ -5,7 +5,6 @@ Author:
 Date:
 """
 
-
 """
 1. 把等待时间放在放在find_element 方法中实现，且分为两块
  一块是动态等待时间，在这段时间内，循环判断元素是否出现，出现就返回结果
@@ -65,11 +64,11 @@ class UiAutomator2TestDriver:
 
         # 目录名称和文件名，用于截图
         self.did = 'XXX'
-        self.title = {'wakeup_time': '', 'shootName': 'test.jpg'}
+        self.title = {'wakeup_time': '', 'shootName': 'test.jpg', 'sensitivity': ['低', '中', '高']}
         self.run_parameters = {'rectangle': 0.5}
 
         # 显示等待时间，默认1秒
-        self.WAIT_TIME = 1.0
+        self.WAIT_TIME = 0.5
 
         # 设置每次点击UI后再次点击之间延时1.5秒
         # self.driver.click_post_delay = 1.5
@@ -96,9 +95,9 @@ class UiAutomator2TestDriver:
         self._config = self.read_config(r"C:\Users\Administrator\P2pServerTest\Apptestify\config\base.ini")
 
     def connect(self):
-        # 点亮屏幕和解锁
-        adb.execute_command(self.androidDeviceID, adb.LIGHT_UP_SCREEN)
-        adb.execute_command(self.androidDeviceID, adb.UNLOCK_SCREEN)
+        # # 点亮屏幕和解锁
+        # adb.execute_command(self.androidDeviceID, adb.LIGHT_UP_SCREEN)
+        # adb.execute_command(self.androidDeviceID, adb.UNLOCK_SCREEN)
 
         # 连接设备，这里使用设备的序列号，如果你没有提供序列号，将连接第一台可用的设备
         device = connect(self.androidDeviceID)
@@ -422,7 +421,7 @@ class UiAutomator2TestDriver:
         min_key = min(elem_coordinate, key=lambda k: elem_coordinate[k])
         return min_key
 
-    def select_button(self, selection_criteria: dict, content=None) -> None:
+    def select_button(self, selection_criteria: dict, content=None) -> _selector.UiObject:
         if content is not None:
             # 拖到屏幕找到对应元素
             self.localize_element(localization_method='text', edges={'text': content}, swap=True)
@@ -439,16 +438,17 @@ class UiAutomator2TestDriver:
             if len(localized_elements) > 1:
                 # 找到层级最近元素的下标
                 index = get_level_differences(self.driver, content, selection_criteria[by])
-                localized_elements[index].click()
+                result = localized_elements[index]
             elif len(localized_elements) == 1:
-                localized_elements.click()
+                result = localized_elements
             else:
                 raise Exception("未找到对应的元素")
 
         else:
             # 未提供定位元素的锚点，则点击第一个元素
             localized_elements = self.localize_element(localization_method="resource-id", edges=selection_criteria)
-            localized_elements.click()
+            result = localized_elements
+        return result
 
     def click_variable_text(self, pattern: str):
         # 用于定位文本内容可变的元素，例如蓝牙配网里的DID等
@@ -639,6 +639,36 @@ class UiAutomator2TestDriver:
         screen_width = self.driver.info['displayWidth']
         self.driver.swipe(screen_width // 2, screen_height, screen_width // 2, screen_height * 0.25)
 
+    def switch(self, step, content=None):
+        """
+        切换指定步骤中的复选框状态。
+
+        该方法根据提供的步骤字典和可选的内容来定位一个元素，并检查并点击该元素，
+        如果该元素是一个复选框，则此操作会切换其选中状态。
+
+        参数:
+        step (dict): 定位元素所需的步骤信息。字典中应包含用于查找元素的关键信息。
+                     例如，{'by': 'id', 'value': 'element_id'}。
+        content (str, optional): 用于进一步筛选目标按钮或其他交互元素的内容文本或标识信息。默认为 None。
+
+        返回值:
+        无
+
+        内部逻辑:
+        - 根据content是否提供以及step的字典内容来决定如何查找元素。
+        - 如果content为None，则直接使用step字典中的信息查找元素。
+        - 否则，使用select_button方法结合step字典和content来选择特定的按钮或其他交互元素。
+        - 最后，调用check_and_click_checkbox方法检查所找到的element是否为复选框，并尝试点击它以切换其状态。
+        """
+        # 根据content是否提供以及step字典的内容来决定如何查找元素
+        if content is None:
+            element = self.find_element(step)  # 使用字典解包的方式传递参数给find_element方法
+        else:
+            element = self.select_button(step, content=content)  # 使用步骤字典和内容来选择特定按钮
+
+        # 检查并点击找到的元素（假设是复选框）
+        self.check_and_click_checkbox(element)
+
     @staticmethod
     @printer
     def optional_button(element):
@@ -678,9 +708,12 @@ class UiAutomator2TestDriver:
         elif step['控件类型'] == '勾选框':
             # 如果控件类型是勾选框，判断状态后再勾选该元素
             self.check_and_click_checkbox(element)
+        elif step['控件类型'] == '开关':
+            # 如果控件类型是开关，判断状态后再勾选该元素
+            self.switch(step, content=content)
         elif step['控件类型'] == '单选按钮':
             # 如果控件类型是单选按钮,判断是否有值，有则点击该值对应的按钮，无则点击第一个按钮
-            self.select_button(step, content=content)
+            self.select_button(step, content=content).click()
         elif step['控件类型'] == '持续到页面跳转':
             self.stayUntilJumpToNewPage(step)
         elif step['控件类型'] == '截图':
@@ -702,6 +735,11 @@ class UiAutomator2TestDriver:
             self.switch_to_date(content)
         elif step['控件类型'] == '选择时间':
             self.switch_to_time(content)
+        elif step['控件类型'] == '选择区域':
+            self.layout_monitor_area(step.get('resource-id'), zoom=content)
+        elif step['控件类型'] == '灵敏度':
+            self.get_sensitivity_level_coordinates_and_click(step.get('resource-id'),
+                                                             self.title.get('sensitivity'), content)
         elif step['控件类型'] == '拖动时间轴':
             if content:
                 self.drag_timeline("com.zwcode.p6slite:id/time_line_view",
@@ -735,6 +773,146 @@ class UiAutomator2TestDriver:
         # 调用digraph对象的compute_page_trust_score方法，并传入page_content作为参数
         # compute_page_trust_score方法将计算并返回信任分数最高的页面名
         return self.digraph.compute_page_trust_score(page_content)
+
+    def get_sensitivity_axis_coordinates(self, element_id):
+        """
+        根据元素ID找到灵敏度轴的区域，并返回该区域的边界框。
+
+        参数:
+        element_id (str): 灵敏度轴区域的唯一标识符。
+
+        返回值:
+        dict: 包含灵敏度轴区域边界的字典，格式为 {'left': int, 'top': int, 'right': int, 'bottom': int}。
+        """
+        # 查找灵敏度轴区域元素
+        sensitivity_axis = self.driver(resourceId=element_id)
+        if not sensitivity_axis.exists:
+            raise ValueError(f"Element with ID '{element_id}' not found.")
+
+        return sensitivity_axis.info['bounds']
+
+    def calculate_sensitivity_level_positions(self, element_id, sensitivity_levels=None):
+        """
+        根据给定的边界框和灵敏度级别列表计算每个级别的坐标。
+
+        参数:
+        bounds (dict): 灵敏度轴区域的边界框信息。
+        sensitivity_levels (list of str): 包含'低', '中', '高'的列表，表示要查询的灵敏度级别，默认为 ['低', '中', '高']。
+
+        返回值:
+        dict: 一个字典，键为灵敏度级别（'低', '中', '高'），值为对应的坐标（tuple）。
+        """
+        if sensitivity_levels is None:
+            sensitivity_levels = ['低', '中', '高']
+        # 获取元素的区域
+        bounds = self.get_sensitivity_axis_coordinates(element_id)
+        left, top, right, bottom = bounds['left'], bounds['top'], bounds['right'], bounds['bottom']
+        width = right - left
+
+        # 计算每个灵敏度级别的位置，假设它们均匀分布于灵敏度轴上
+        num_levels = len(sensitivity_levels)
+        level_width = width / num_levels
+
+        coordinates = {}
+        for i, level in enumerate(sensitivity_levels):
+            x = left + (i + 0.5) * level_width  # 中心点X坐标
+            y = (top + bottom) / 2  # 中心点Y坐标
+            coordinates[level] = (x, y)
+
+        return coordinates
+
+    def get_sensitivity_level_coordinates_and_click(self, element_id: str, sensitivity_levels: list,
+                                                    target_sensitivity: str):
+        """
+        根据元素ID和提供的灵敏度级别列表，返回对应灵敏度级别的坐标，并点击指定的灵敏度级别坐标。
+
+        参数:
+        element_id (str): 灵敏度轴区域的唯一标识符。
+        sensitivity_levels (list of str): 包含'低', '中', '高'的列表，表示要查询的灵敏度级别，默认为 ['低', '中', '高']。
+        target_sensitivity (str): 指定要点击的灵敏度级别，默认为 '低'。
+
+        返回值:
+        tuple or None: 如果找到了并点击了指定的灵敏度级别，则返回其坐标；否则返回 None。
+        """
+        # 获取所有灵敏度级别的坐标
+        all_coordinates = self.calculate_sensitivity_level_positions(element_id, sensitivity_levels)
+
+        # 检查目标灵敏度级别是否存在于坐标字典中
+        if target_sensitivity not in all_coordinates:
+            print(f"Sensitivity level '{target_sensitivity}' not found.")
+            return None
+
+        # 获取目标灵敏度级别的坐标
+        target_coords = all_coordinates[target_sensitivity]
+
+        # 点击目标灵敏度级别的坐标
+        self.driver.click(*target_coords)
+
+        print(f"Clicked on sensitivity level '{target_sensitivity}' at coordinates {target_coords}.")
+        return target_coords
+
+    def layout_monitor_area(self, elementId, zoom=None):
+        """
+        根据给定的元素ID布局监控区域，并根据缩放比例调整点击位置。
+
+        参数:
+        elementId (str): 监控区域元素的唯一标识符。
+        zoom (float): 缩放比例，用于调整点击位置的坐标。
+        """
+
+        def apply_zoom(left, top, right, bottom, zoom_factor):
+            """
+            根据缩放因子调整区域边界，保持中心点不变。
+
+            参数:
+            left (int): 区域左边界坐标。
+            top (int): 区域上边界坐标。
+            right (int): 区域右边界坐标。
+            bottom (int): 区域下边界坐标。
+            zoom_factor (float): 缩放比例，大于1表示放大，小于1表示缩小。
+
+            返回:
+            tuple: 调整后的边界坐标 (left, top, right, bottom)。
+            """
+            # 计算原始区域的中心点
+            center_x = (left + right) / 2
+            center_y = (top + bottom) / 2
+
+            # 计算原始宽度和高度
+            width = right - left
+            height = bottom - top
+
+            # 根据缩放因子调整宽度和高度
+            new_width = width * zoom_factor
+            new_height = height * zoom_factor
+
+            # 计算新的边界
+            new_left = center_x - new_width / 2
+            new_right = center_x + new_width / 2
+            new_top = center_y - new_height / 2
+            new_bottom = center_y + new_height / 2
+
+            return int(new_left), int(new_top), int(new_right), int(new_bottom)
+
+        # 初始化zoom
+        if zoom is None:
+            zoom = 1
+
+        # 获取元素的区域边界
+        bounds = self.get_sensitivity_axis_coordinates(elementId)
+        left, top, right, bottom = bounds['left'], bounds['top'], bounds['right'], bounds['bottom']
+
+        # 如果需要，可以根据缩放比例调整坐标
+        bounds = apply_zoom(left, top, right, bottom, zoom)
+
+        # 生成区域的坐标
+        area = [(bounds[0], bounds[1]), (bounds[2], bounds[1]), (bounds[2], bounds[3]), (bounds[0], bounds[3])]
+
+        # 选择并点击区域内的坐标点
+        for point in area:
+            x, y = point[0], point[1]
+            self.driver.click(x, y)
+            time.sleep(0.5)
 
     @staticmethod
     def demo_01():

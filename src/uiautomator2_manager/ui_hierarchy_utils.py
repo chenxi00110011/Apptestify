@@ -84,8 +84,8 @@ def get_level_differences(d, element1_text, element2_text):
 
 if __name__ == "__main__":
 
-    element1_text = "000086"
-    element2_text = "com.zwcode.p6slite:id/device_set"
+    element1_text = "移动侦测报警"
+    element2_text = "com.zwcode.p6slite:id/param_switch"
 
     level_diffs = get_level_differences(d, element1_text, element2_text)
 
