@@ -66,24 +66,5 @@ class DeviceAPIManager(DevEndpoints):
 
 
 if __name__ == '__main__':
-    DeviceAPIManager('192.168.1.100').get_dev_info()
-    # endpoints.open_telnet()
-    # endpoints.device_reverse_packet()
-    # endpoints.get_sdcard_info()
-    # endpoints.get_time_info()
+    DeviceAPIManager('192.168.19.17').open_telnet()
 
-    # # 设备重启
-    # endpoints.dev_reboot()
-    # time.sleep(45)
-
-    # 获取SD卡信息
-    # res = endpoints.get_sdcard_info()
-    # print(res['DiskList']['Disk']['DiskStorageAttribute'])
-
-    # # 格式化SD卡
-    # endpoints.format_sdcard()
-    # time.sleep(30)
-    #
-    # # 获取SD卡信息
-    # res = endpoints.get_sdcard_info()
-    # print(res['DiskList']['Disk']['DiskStorageAttribute'])

@@ -14,7 +14,12 @@ ding_talk_robots = dict(
     T41运营商项目烤机群=dict(
     prefix='https://oapi.dingtalk.com/robot/send?access_token'
            '=5254c4994726ff1a9cfdc218538a424149a251a24f674214b086200afc08df5c',
-    secret='SECb8bf00029e0ef971dd78aab4fe87033c81b5053cb8a29d9a67e4817bf8fbf043'))
+    secret='SECb8bf00029e0ef971dd78aab4fe87033c81b5053cb8a29d9a67e4817bf8fbf043')
+    ,
+    P6SWMS=dict(
+        prefix='https://oapi.dingtalk.com/robot/send?access_token=dccac33b88a86c34cbec469715d57a7512d2c7ca1a5c4e6e80d295a886b2d891',
+        secret='SEC82ffb319f483770e9c25fea83c3596b92f5c30e3a10c48d9125a727a79bf8cdf')
+)
 
 
 def countersign(ding_talk_robot):

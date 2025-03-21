@@ -3,7 +3,7 @@
 /.idea/*
 !src/
 !docs/
-!tests/
+!test_suit/
 !requirements.txt
 **/qr/
 **/__pycache__/

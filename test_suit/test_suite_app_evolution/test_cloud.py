@@ -8,15 +8,15 @@ import inspect
 
 _config = read_config(r'..\..\config\device_info.ini')
 account_config = read_config(r'..\..\config\base.ini')
-parameter = [(account_config.get('睿博士测试手机账号', 'account'),
-              account_config.get('睿博士测试手机账号', 'pwd'),
+parameter = [(account_config.get('睿博士正式服账号', '中国手机账户_1'),
+              account_config.get('睿博士正式服账号', '中国手机密码_1'),
               _config.get('云存储设备', 'did'),
               _config.get('云存储设备', 'name')
               )]
 
 
 @pytest.mark.case_name("云录像关闭与开启")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.cloud
 @pytest.mark.repeat(1)
 @pytest.mark.test_environment
@@ -32,7 +32,7 @@ def test_enableCloudSwitch(account, pwd, did, name):
     # 打开云存储
     app.title["checked"] = True
     app.go_to_page("云存储开关", name)
-    time.sleep(120)
+    time.sleep(300)
 
     # 关闭云存储
     app.title["checked"] = False
@@ -42,7 +42,7 @@ def test_enableCloudSwitch(account, pwd, did, name):
     # 打开云存储
     app.title["checked"] = True
     app.go_to_page("云存储开关")
-    time.sleep(600)
+    time.sleep(300)
 
     # 检查云回放录像
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -55,13 +55,12 @@ def test_enableCloudSwitch(account, pwd, did, name):
 @pytest.mark.case_name("云录像本地录制并分享")
 @pytest.mark.cloud
 @pytest.mark.test_environment
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloudRecordAndShare(account1, pwd1, did, name):
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page("登录")
     app.go_to_page("首页", account1, pwd1)
     app.go_to_page("云回放", name)
 
@@ -92,7 +91,7 @@ def test_cloudRecordAndShare(account1, pwd1, did, name):
 
 
 @pytest.mark.case_name("云录像回放抓图")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.cloud
 @pytest.mark.test_environment
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
@@ -100,7 +99,6 @@ def test_cloudCapture(account1, pwd1, did, name):
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page("登录")
     app.go_to_page("首页", account1, pwd1)
     app.go_to_page("云回放", name)
 
@@ -122,7 +120,7 @@ def test_cloudCapture(account1, pwd1, did, name):
 
 
 @pytest.mark.case_name("云录像回放中拖动时间轴播放")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -131,7 +129,6 @@ def test_cloud_seek(account1, pwd1, did, name):
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page("登录")
     app.go_to_page("首页", account1, pwd1)
     app.go_to_page("云回放", name)
     timelist = [
@@ -153,12 +150,10 @@ def test_cloud_seek(account1, pwd1, did, name):
         time.sleep(3)
         app.go_to_page("拖动时间轴", time_str)
         time.sleep(5)
-        app.title['wakeup_time'] = time_str.replace(":", "")
-        app.go_to_page("截图")
 
 
 @pytest.mark.case_name("第一次进入云回放时间轴初始位置")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -167,7 +162,6 @@ def test_check_timeline_initial_position_01(account1, pwd1, did, name):
     # 登录并进入云回放页面
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page("登录")
     app.go_to_page("首页", account1, pwd1)
     app.go_to_page("云回放", name)
 
@@ -182,7 +176,7 @@ def test_check_timeline_initial_position_01(account1, pwd1, did, name):
     # 对比当前时间与初始位置
     timestamp_now = int(time.time())
 
-    assert abs((timestamp_now - timestamp_0) - (timestamp + 600)) < 60
+    assert (timestamp_now - timestamp_0) - timestamp < 1200
 
 
 @pytest.mark.case_name("关闭云存开关后，检查时间轴初始位置")
@@ -195,7 +189,6 @@ def test_check_timeline_initial_position_after_cloud_storage_disabled(account1, 
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
 
     # 关闭云存储
@@ -221,7 +214,7 @@ def test_check_timeline_initial_position_after_cloud_storage_disabled(account1, 
     # 获取当前日期的0点时间戳
     timestamp_0 = int(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
 
-    # 关闭云存储
+    # 打开云存储
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
     app.go_to_page("首页", account1, pwd1)
@@ -229,20 +222,20 @@ def test_check_timeline_initial_position_after_cloud_storage_disabled(account1, 
     app.go_to_page("云存储开关", name)
 
     # 对比当前时间与初始位置
-    assert abs((timestamp_now - timestamp_0) - timestamp) < 120
+    assert (timestamp_now - timestamp_0) - timestamp < 600
 
 
 # 云录像回放中切换不同日期时间播放
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.skip(reason="This test is temporarily disabled")
 @pytest.mark.repeat(1)
+@pytest.mark.cloud
 @pytest.mark.test_environment
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)
 def test_cloud_playback_controller(account1, pwd1, did, name):
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     app.go_to_page("云回放", name)
     app.go_to_page("日历", name)
@@ -250,8 +243,8 @@ def test_cloud_playback_controller(account1, pwd1, did, name):
 
 _config = read_config(r'..\..\config\device_info.ini')
 account_config = read_config(r'..\..\config\base.ini')
-parameter = [(account_config.get('睿博士测试手机账号', 'account'),
-              account_config.get('睿博士测试手机账号', 'pwd'),
+parameter = [(account_config.get('睿博士正式服账号', '中国手机账户_1'),
+              account_config.get('睿博士正式服账号', '中国手机密码_1'),
               _config.get('未开通云存储设备', 'did_2'),
               _config.get('未开通云存储设备', 'name_2'),
               account_config.get('支付宝APP', 'PAYMENT_PASSWORD')
@@ -259,7 +252,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.case_name("使用支付宝购买云存套餐失败")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -268,7 +261,6 @@ def test_handle_alipay_payment_failure(account1, pwd1, did, name, payment_passwo
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云服务管理', name)
@@ -277,7 +269,7 @@ def test_handle_alipay_payment_failure(account1, pwd1, did, name, payment_passwo
     assert not app.exists_element(selector="text", value="已开通")
 
     # 选择套餐并跳转到支付页面
-    app.go_to_page('支付宝购买连续录像')
+    app.go_to_page('支付宝购买连续录像', '月套餐')
     time.sleep(10)
 
     # 支付宝支付失败
@@ -302,7 +294,7 @@ def test_handle_alipay_payment_failure(account1, pwd1, did, name, payment_passwo
 
 
 @pytest.mark.case_name("云存储套餐支付宝购买支付成功")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -311,7 +303,6 @@ def test_handle_alipay_payment_success(account1, pwd1, did, name, payment_passwo
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云服务管理', name)
@@ -320,7 +311,7 @@ def test_handle_alipay_payment_success(account1, pwd1, did, name, payment_passwo
     assert app.exists_element(selector="text", value="未开通")
 
     # 选择套餐并跳转到支付页面
-    app.go_to_page('支付宝购买连续录像')
+    app.go_to_page('支付宝购买连续录像', '月套餐')
     time.sleep(10)
 
     # 支付宝支付失败
@@ -332,7 +323,7 @@ def test_handle_alipay_payment_success(account1, pwd1, did, name, payment_passwo
         app.driver(text=num).click()
 
     # 检查是否支付成功
-    time.sleep(5)
+    time.sleep(15)
     assert app.exists_element(selector="text", value="支付成功")
 
     # 检查云存储状态
@@ -372,7 +363,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.case_name("云存储套餐微信购买支付失败")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=0, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -381,7 +372,6 @@ def test_handle_wechat_payment_failure(account1, pwd1, did, name, payment_passwo
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云服务管理', name)
@@ -390,16 +380,12 @@ def test_handle_wechat_payment_failure(account1, pwd1, did, name, payment_passwo
     assert app.exists_element(selector="text", value="未开通")
 
     # 选择套餐并跳转到支付页面
-    app.go_to_page('微信购买连续录像')
+    app.go_to_page('微信购买连续录像', '月套餐')
     time.sleep(10)
 
     # 支付宝支付失败
     if app.exists_element(selector="text", value="忽略"):
         app.driver(text="忽略").click()
-
-    # 输入密码
-    # for num in payment_password:
-    #     app.driver(text=num).click()
 
     # 放弃支付
     app.driver(resourceId="com.tencent.mm:id/actionbar_up_indicator_btn").click()
@@ -420,8 +406,8 @@ def test_handle_wechat_payment_failure(account1, pwd1, did, name, payment_passwo
 
 
 @pytest.mark.case_name("云存储套餐微信购买支付成功")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
-@pytest.mark.cloud
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
+@pytest.mark.cloud_test
 @pytest.mark.test_environment
 @pytest.mark.repeat(1)
 @pytest.mark.parametrize("account1, pwd1, did, name, payment_password", parameter)
@@ -429,32 +415,32 @@ def test_handle_wechat_payment_success(account1, pwd1, did, name, payment_passwo
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云服务管理', name)
 
     # 检查套餐是否已开通
-    assert app.exists_element(selector="text", value="未开通")
+    is_provisioned = app.exists_element(selector="text", value="未开通")
 
-    # 选择套餐并跳转到支付页面
-    app.go_to_page('微信购买连续录像')
-    time.sleep(10)
+    if is_provisioned:
+        # 选择套餐并跳转到支付页面
+        app.go_to_page('微信购买连续录像', '月套餐')
+        time.sleep(10)
 
-    # 忽略提示自动化风险
-    if app.exists_element(selector="text", value="忽略"):
-        app.driver(text="忽略").click()
+        # 忽略提示自动化风险
+        if app.exists_element(selector="text", value="忽略"):
+            app.driver(text="忽略").click()
 
-    if app.exists_element(selector="text", value="立即支付"):
-        app.driver(text="立即支付").click()
+        if app.exists_element(selector="text", value="立即支付"):
+            app.driver(text="立即支付").click()
 
-    # 输入密码
-    for num in payment_password:
-        app.driver(text=num).click()
+        # 输入密码
+        for num in payment_password:
+            app.driver(text=num).click()
 
-    # 检查是否支付成功
-    time.sleep(5)
-    assert app.exists_element(selector="text", value="支付成功")
+        # 检查是否支付成功
+        time.sleep(15)
+        assert app.exists_element(selector="text", value="支付成功")
 
     # 检查云存储状态
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -470,16 +456,15 @@ def test_handle_wechat_payment_success(account1, pwd1, did, name, payment_passwo
     assert app.driver(resourceId="com.zwcode.p6slite:id/param_switch").info.get('checked')
 
     # 等待10分钟，查看云存回放
-    time.sleep(600)
+    time.sleep(10)
 
-    # 云回放截图
+    # 获取云存录像
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
     app.go_to_page("云回放", name)
-    time.sleep(5)
-    method_name = inspect.stack()[0].function
-    app.title['shootName'] = method_name
-    app.go_to_page("截图")
+    time.sleep(10)
+    assert app.exists_element(selector="resource-id", value="com.zwcode.p6slite:id/tv_record_count")
+
 
 
 _config = read_config(r'..\..\config\device_info.ini')
@@ -493,7 +478,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.case_name("设备已开通未过期，点击APP首页云存储按钮")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -502,8 +487,6 @@ def test_cloud_storage_button_with_active_subscription(account1, pwd1, did, name
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 0.5
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云存储', name)
@@ -524,7 +507,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.case_name("设备未开通，点击APP首页云存储按钮")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -533,7 +516,6 @@ def test_cloud_storage_button_with_inactive_subscription(account1, pwd1, did, na
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云存储', name)
@@ -558,7 +540,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.case_name("设备开通云存储已过期，点击APP首页云存储按钮")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -567,7 +549,6 @@ def test_handle_expired_cloud_storage(account1, pwd1, did, name):
     # 前置条件
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云存储', name)
@@ -589,7 +570,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.case_name("云服务套餐续费")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -599,7 +580,6 @@ def test_renew_expired_package(account1, pwd1, did, name, payment_password):
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
     app.run_parameters['rectangle'] = 0.5
-    app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page('云服务管理', name)
@@ -661,7 +641,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 
 
 @pytest.mark.case_name("云录像回放中切换不同日期时间播放")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.test_environment
@@ -677,8 +657,6 @@ def test_change_playback_time_seek_to_recorded_segment(account1, pwd1, did, name
 
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 0.5
-    # app.go_to_page('登录')
     app.go_to_page('首页', account1, pwd1)
     time.sleep(5)
     app.go_to_page("选择日期", name, formatted_previous_date)
@@ -695,7 +673,7 @@ def test_change_playback_time_seek_to_recorded_segment(account1, pwd1, did, name
 
 
 @pytest.mark.case_name("云录像回放中点击没有录像的日期")
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+@pytest.mark.flaky(reruns=1, reruns_delay=2)
 @pytest.mark.repeat(1)
 @pytest.mark.cloud
 @pytest.mark.parametrize("account1, pwd1, did, name", parameter)

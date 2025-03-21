@@ -54,8 +54,34 @@ def show_image(image_path, display_time=5000):
     root.mainloop()
 
 
+def get_image_properties(image_path):
+    try:
+        with Image.open(image_path) as img:
+            # 获取图像尺寸 (宽度, 高度)
+            width, height = img.size
+
+            # 获取图像格式 (例如: JPEG, PNG, GIF 等)
+            format = img.format
+
+            # 获取图像模式 (例如: RGB, RGBA, L 等)
+            mode = img.mode
+
+            # 获取图像信息 (可能包含一些元数据)
+            info = img.info
+
+            return {
+                '尺寸': (width, height),
+                '格式': format,
+                '模式': mode,
+                '信息': info
+            }
+    except Exception as e:
+        print(f"无法打开或处理图像: {e}")
+        return None
+
+
 if __name__ == "__main__":
-    # 指定图片路径和显示时间
-    image_path = r"C:\Users\Administrator\Desktop\video\截图\H675FIS8JJU8AMWW\XXX\2024-11-22\test.jpg"
-    display_time = 10000  # 显示时间为10秒
-    show_image(image_path, display_time)
+    # 示例调用
+    image_path = r"C:\Users\Administrator\Desktop\video\test\IOTFAA-370148-NYPSC_2024_12_05_14_28_10_CH_1_imageName370148.jpg"
+    properties = get_image_properties(image_path)
+    print(properties)

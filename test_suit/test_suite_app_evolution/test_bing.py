@@ -9,19 +9,19 @@ from device_reset import reset
 
 _config = read_config(r'..\..\config\device_info.ini')
 account_config = read_config(r'..\..\config\base.ini')
-parameter = [(account_config.get('睿博士测试手机账号', 'account'),
-              account_config.get('睿博士测试手机账号', 'pwd'),
+parameter = [(account_config.get('睿博士正式服账号', '中国手机账户_1'),
+              account_config.get('睿博士正式服账号', '中国手机密码_1'),
               _config.get('无线配网', 'did_1'),
               _config.get('无线配网', 'name_1')),
-             (account_config.get('睿博士测试手机账号', 'account'),
-              account_config.get('睿博士测试手机账号', 'pwd'),
+             (account_config.get('睿博士正式服账号', '中国手机账户_1'),
+              account_config.get('睿博士正式服账号', '中国手机密码_1'),
               _config.get('海思蓝牙', 'did_1'),
               _config.get('海思蓝牙', 'name_1'))
              ]
 
 
 @pytest.mark.case_name("AP配网绑定")
-@pytest.mark.bind_test
+@pytest.mark.bind
 @pytest.mark.test_environment
 @pytest.mark.parametrize("account ,pwd, did, name", parameter)
 @pytest.mark.repeat(1)
@@ -29,7 +29,7 @@ parameter = [(account_config.get('睿博士测试手机账号', 'account'),
 def test_bing_ap(account, pwd, did, name):
     # 设备复位
     reset(did)
-    time.sleep(30)
+    time.sleep(15)
 
     # 手机连接Wi-Fi
     AdbManager.connect_network('H675FIS8JJU8AMWW', account_config.get('测试Wi-Fi', 'ssid'),
@@ -76,11 +76,11 @@ def test_bing_wifi_qr():
 @pytest.mark.test_environment
 @pytest.mark.repeat(1)
 @pytest.mark.parametrize("account, pwd, did, name", parameter)
-@pytest.mark.flaky(reruns=3, reruns_delay=2)
+# @pytest.mark.flaky(reruns=3, reruns_delay=2)
 def test_bing_bluetooth(account, pwd, did, name):
     # # 设备复位
     reset(did)
-    time.sleep(30)
+    time.sleep(15)
 
     # 启动睿博士app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
@@ -88,9 +88,8 @@ def test_bing_bluetooth(account, pwd, did, name):
     app.go_to_page('首页', account, pwd)
     app.go_to_page('输入WiFi网络', did)
     time.sleep(5)
-    app.go_to_page('设备添加成功', 'Ruision-work-CS2.4', 'ruision2024@cs')
-    # if app.exists_element(selector='text', value='设备添加失败'):
-    #     time.sleep(3600*24)
+    app.go_to_page('设备添加成功', account_config.get('测试Wi-Fi', 'ssid'), account_config.get('测试Wi-Fi', 'wifi_password'))
+    time.sleep(10)
     assert app.exists_element(selector='text', value='设备添加成功')
 
 

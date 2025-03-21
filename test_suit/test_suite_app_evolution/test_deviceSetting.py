@@ -3,8 +3,7 @@
 import time
 import pytest
 import uiautomator2_extended
-from device_reset import reset
-from router_config import modify_wifi, read_config, router_management, get_sections
+from router_config import read_config
 
 WAIT_FOR_EVENT_WITH_TIMEOUT = 15
 
@@ -30,8 +29,6 @@ def test_enableHumanDetection(account, pwd, did, name, areaCode):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
-
     app.go_to_page('登录')
     if not app.exists_element(selector="text", value="+86"):
         app.go_to_page("选择国家", areaCode)
@@ -51,6 +48,7 @@ def test_enableHumanDetection(account, pwd, did, name, areaCode):
     app.go_to_page('删除全部云消息', "我的")
 
     # 检查云消息是否上报人形侦测
+    app.run_parameters['rectangle'] = 5.0
     time.sleep(WAIT_FOR_EVENT_WITH_TIMEOUT)
     app.go_to_page('云消息', name)
     count = 0
@@ -72,7 +70,6 @@ def test_disableHumanDetection(account, pwd, did, name, areaCode):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('首页', account, pwd)
     app.go_to_page('报警管理', name)
     time.sleep(3)
@@ -89,6 +86,7 @@ def test_disableHumanDetection(account, pwd, did, name, areaCode):
     app.go_to_page('删除全部云消息', "我的")
 
     # 检查云消息是否上报人形侦测
+    app.run_parameters['rectangle'] = 5.0
     time.sleep(180)
     app.go_to_page('云消息', name)
     assert not app.exists_element(selector="text", value="人形检测")
@@ -103,7 +101,6 @@ def test_enableMotionDetection(account, pwd, did, name, areaCode):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('首页', account, pwd)
     app.go_to_page('报警管理', name)
     time.sleep(3)
@@ -120,6 +117,7 @@ def test_enableMotionDetection(account, pwd, did, name, areaCode):
     app.go_to_page('删除全部云消息', "我的")
 
     # 检查云消息是否上报人形侦测
+    app.run_parameters['rectangle'] = 5.0
     time.sleep(WAIT_FOR_EVENT_WITH_TIMEOUT)
     app.go_to_page('云消息', name)
     count = 0
@@ -141,7 +139,6 @@ def test_disableMotionDetection(account, pwd, did, name, areaCode):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('首页', account, pwd)
     app.go_to_page('报警管理', name)
     time.sleep(3)
@@ -158,6 +155,7 @@ def test_disableMotionDetection(account, pwd, did, name, areaCode):
     app.go_to_page('删除全部云消息', "我的")
 
     # 检查云消息是否上报人形侦测
+    app.run_parameters['rectangle'] = 5.0
     time.sleep(180)
     app.go_to_page('云消息', name)
     assert not app.exists_element(selector="text", value="移动侦测")
@@ -198,7 +196,6 @@ def test_setHumanDetectionSensitivity(account, pwd, did, name, areaCode, sensiti
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
 
     app.go_to_page('登录')
     if not app.exists_element(selector="text", value="+86"):
@@ -221,6 +218,7 @@ def test_setHumanDetectionSensitivity(account, pwd, did, name, areaCode, sensiti
     app.go_to_page('删除全部云消息', "我的")
 
     # 检查云消息是否上报人形侦测
+    app.run_parameters['rectangle'] = 5.0
     time.sleep(WAIT_FOR_EVENT_WITH_TIMEOUT)
     app.go_to_page('云消息', name)
     count = 0
@@ -242,7 +240,6 @@ def test_setMotionDetectionSensitivity(account, pwd, did, name, areaCode, sensit
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
 
     app.go_to_page('登录')
     if not app.exists_element(selector="text", value="+86"):
@@ -265,6 +262,7 @@ def test_setMotionDetectionSensitivity(account, pwd, did, name, areaCode, sensit
     app.go_to_page('删除全部云消息', "我的")
 
     # 检查云消息是否上报人形侦测
+    app.run_parameters['rectangle'] = 5.0
     time.sleep(WAIT_FOR_EVENT_WITH_TIMEOUT)
     app.go_to_page('云消息', name)
     count = 0
@@ -311,7 +309,6 @@ def test_setupMonitoringArea(account, pwd, did, name, areaCode, eventKind):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('首页', account, pwd)
     app.go_to_page('报警管理', name)
     time.sleep(3)
@@ -330,6 +327,7 @@ def test_setupMonitoringArea(account, pwd, did, name, areaCode, eventKind):
     app.go_to_page('删除全部云消息', "我的")
 
     # 检查云消息是否上报人形侦测
+    app.run_parameters['rectangle'] = 5.0
     time.sleep(WAIT_FOR_EVENT_WITH_TIMEOUT)
     app.go_to_page('云消息', name)
     count = 0
@@ -363,7 +361,6 @@ def setOSDParameters(account, pwd, did, name, areaCode, osd):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('首页', account, pwd)
     app.go_to_page('设备信息', name)
     app.title["checked"] = True
@@ -402,7 +399,6 @@ def test_displayOSDChannelName(account, pwd, did, name, areaCode, checked):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('首页', account, pwd)
     app.go_to_page('设备信息', name)
     app.title["checked"] = checked
@@ -419,13 +415,12 @@ def test_displayOSDChannelName(account, pwd, did, name, areaCode, checked):
 @pytest.mark.repeat(1)
 @pytest.mark.case_name("OSD显示时间使能")
 @pytest.mark.flaky(reruns=3, reruns_delay=2)
-@pytest.mark.setting_test
+@pytest.mark.setting
 @pytest.mark.parametrize("account, pwd, did, name, areaCode, checked", parameter)
 def test_displayOSDTime(account, pwd, did, name, areaCode, checked):
     # 打开app
     app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
     time.sleep(15)
-    app.run_parameters['rectangle'] = 1.0
     app.go_to_page('首页', account, pwd)
     app.go_to_page('设备信息', name)
     app.title["checked"] = checked

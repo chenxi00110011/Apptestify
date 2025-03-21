@@ -2,6 +2,24 @@ import os
 import hashlib
 import re
 from datetime import datetime
+import shutil
+
+
+def remove_directory_recursively(folder_path):
+    """
+    递归删除指定文件夹及其所有内容。
+
+    参数:
+    folder_path (str): 要删除的文件夹路径。
+
+    返回值:
+    None
+    """
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
+        print(f"成功删除文件夹: {folder_path}")
+    else:
+        print(f"文件夹不存在: {folder_path}")
 
 
 # from my_decorator import match_pattern_in_list, print_list_items
@@ -66,6 +84,16 @@ def parse_log_entry(entry, date_pattern):
         return timestamp
     else:
         return None
+
+
+def get_all_file_paths(folder_path):
+    # 给定文件夹，返回文件夹下的所有文件的绝对路径
+    file_paths = []
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            absolute_path = os.path.join(root, file)
+            file_paths.append(os.path.abspath(absolute_path))
+    return file_paths
 
 
 if __name__ == '__main__':

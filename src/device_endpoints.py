@@ -68,7 +68,7 @@ class DevEndpoints:
 
 
 if __name__ == "__main__":
-    endpoints = DevEndpoints('http://192.168.123.140')
+    endpoints = DevEndpoints('192.168.101.106')
     # 获取用户列表的完整 URL
-    # users_url = endpoints.get_full_url(endpoints.SD_CARD_FORMAT)
-    # print(users_url)  # 输出: https://api.example.com/users
+    users_url = endpoints.get_full_url(endpoints.DEVICE_INFO)
+    print(users_url)  # 输出: https://api.example.com/users

@@ -16,6 +16,10 @@ def get_config(app_name: str):
         return ConfigManagerHOLOZ
     elif app_name == "微信":
         return ConfigManagerHOLOZ
+    elif app_name == "广春物联":
+        return ConfigManagerGCWL
+    elif app_name == "钉钉":
+        return ConfigManagerDingding
     else:
         raise Exception("请输入app名称")
 
@@ -74,6 +78,74 @@ class ConfigManagerRUIBOSHI:
     # 日志目录
     LOGS_DIR = "C:/Users/Administrator/Desktop/logs"
 
+
+class ConfigManagerGCWL:
+    # PAGE_ELEMENT_FILE_PATH = r'C:\Users\Administrator\PycharmProjects\AutoDriver_UIA2\venv\data\页面组件列表.xlsx'
+    # 配置文件存放目录
+    data_directory = find_directory('data')
+    # 邻接表存放路径
+    PAGE_ELEMENT_FILE_PATH = os.path.join(data_directory, '广春物联.xlsx')
+    # APK路径
+    APK_FILE_PATH = os.path.join(data_directory, 'test.apk')
+    # 二维码保存目录
+    QR_DIR = os.path.join(data_directory, 'qr')
+
+    ADJACENCY_LIST = '邻接表'
+    TRUST_LEVEL_TABLE = '置信表'
+    # app包名
+    APP_PACKAGE_NAME = 'com.xrs.guangchun'
+    # app活动名
+    APP_ACTIVITY_NAME = '.activity.SplashActivity'
+    # 所有列名
+    TABLE_HEADERS = ['页面名称', '相邻页面', 'resource-id', 'className', 'text', '控件类型', '默认值', '置信度',
+                     '等待时间']
+    # 判断置信度的列名
+    ATTRIBUTE_LIST = ['text', 'resource-id', 'className']
+    # 所有元素类型
+    UI_CONTROLS_TYPE = ['按钮', '文本框', '勾选框', '单选按钮', '空值', '持续到页面跳转', '截图', '切换网络']
+    # 需要输入内容的元素
+    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '可变文本', '切换网络', "拖动时间轴", "打开通知栏", "选择日期", "选择时间", "开关",
+                   "灵敏度", "选择区域"]
+    # 截图保存路径
+    SCREENSHOT_PATH = rf"C:\Users\Administrator\Desktop\video\截图"
+    # 存储手机截屏路径
+    MOBILE_SCREEN_CAPTUREA = '/sdcard/DCIM/Screenshots/'
+    # 日志目录
+    LOGS_DIR = "C:/Users/Administrator/Desktop/logs"
+
+class ConfigManagerDingding:
+    # PAGE_ELEMENT_FILE_PATH = r'C:\Users\Administrator\PycharmProjects\AutoDriver_UIA2\venv\data\页面组件列表.xlsx'
+    # 配置文件存放目录
+    data_directory = find_directory('data')
+    # 邻接表存放路径
+    PAGE_ELEMENT_FILE_PATH = os.path.join(data_directory, '钉钉.xlsx')
+    # APK路径
+    APK_FILE_PATH = os.path.join(data_directory, 'test.apk')
+    # 二维码保存目录
+    QR_DIR = os.path.join(data_directory, 'qr')
+
+    ADJACENCY_LIST = '邻接表'
+    TRUST_LEVEL_TABLE = '置信表'
+    # app包名
+    APP_PACKAGE_NAME = 'com.alibaba.android.rimet'
+    # app活动名
+    APP_ACTIVITY_NAME = '.activity.SplashActivity'
+    # 所有列名
+    TABLE_HEADERS = ['页面名称', '相邻页面', 'resource-id', 'className', 'text', '控件类型', '默认值', '置信度',
+                     '等待时间']
+    # 判断置信度的列名
+    ATTRIBUTE_LIST = ['text', 'resource-id', 'className']
+    # 所有元素类型
+    UI_CONTROLS_TYPE = ['按钮', '文本框', '勾选框', '单选按钮', '空值', '持续到页面跳转', '截图', '切换网络']
+    # 需要输入内容的元素
+    UI_ELEMENTS = ['文本框', '单选按钮', '截图', '可变文本', '切换网络', "拖动时间轴", "打开通知栏", "选择日期", "选择时间", "开关",
+                   "灵敏度", "选择区域"]
+    # 截图保存路径
+    SCREENSHOT_PATH = rf"C:\Users\Administrator\Desktop\video\截图"
+    # 存储手机截屏路径
+    MOBILE_SCREEN_CAPTUREA = '/sdcard/DCIM/Screenshots/'
+    # 日志目录
+    LOGS_DIR = "C:/Users/Administrator/Desktop/logs"
 
 class ConfigManagerHOLOZ:
     # PAGE_ELEMENT_FILE_PATH = r'C:\Users\Administrator\PycharmProjects\AutoDriver_UIA2\venv\data\页面组件列表.xlsx'

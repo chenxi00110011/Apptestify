@@ -34,6 +34,9 @@ class AdbManager:
     # 从电脑下载文件到手机
     DOWNLOAD_FILE = "push {} {}"
 
+    # 从手机下载文件到电脑
+    PULL_FILE = "pull {} {}"
+
     # 重启手机
     REBOOT = "reboot"
     # ... 可以添加更多的ADB指令常量
@@ -86,6 +89,12 @@ class AdbManager:
         return AdbManager.execute_command(deviceID, command)
 
     @staticmethod
+    def pull_file(deviceID: str, down_file, des_path):
+        """下载文件到手机"""
+        command = AdbManager.PULL_FILE.format(down_file, des_path)
+        return AdbManager.execute_command(deviceID, command)
+
+    @staticmethod
     def clear_all_background_apps():
         try:
             # 检查设备是否连接
@@ -109,16 +118,5 @@ class AdbManager:
 
 
 if __name__ == "__main__":
-    from config_module import get_config
-    # AdbManager().download_file('H675FIS8JJU8AMWW', '../../data/test.apk', rui.APK_DIR)
-    # AdbManager().uninstall_app('H675FIS8JJU8AMWW', rui.APP_PACKAGE_NAME)
-    # AdbManager().install_app('H675FIS8JJU8AMWW', '../../data/test.apk')
-    # AdbManager.download_file(
-    #     deviceID='H675FIS8JJU8AMWW',
-    #     local_path=os.path.join(get_config('睿博士').QR_DIR, 'v1.png'),
-    #     remote_path=get_config('睿博士').MOBILE_SCREEN_CAPTUREA
-    # )
-    #
 
-    AdbManager.connect_network('H675FIS8JJU8AMWW', "ZWAP_IOTFAA-000086-MRNRJ", '01234567')
-    # AdbManager.clear_all_background_apps()
+    AdbManager.pull_file('H675FIS8JJU8AMWW', "/sdcard/Pictures/P6SLite/screenshot", r'C:\Users\Administrator\Desktop\video\test')

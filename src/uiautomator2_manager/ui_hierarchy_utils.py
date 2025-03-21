@@ -46,8 +46,12 @@ def calculate_level_difference(element1, element2):
         return -1  # 如果没有共同祖先节点，返回-1表示无法计算层级差
 
 
-def get_level_differences(d, element1_text, element2_text):
+def get_level_differences(d, element1_text, element2_text, depth=None):
     """获取指定文本的两个元素之间的层级差列表"""
+    # 初始化层数
+    if depth is None:
+        depth = 5
+
     # 获取当前屏幕的层次结构
     hierarchy = d.dump_hierarchy()
 
@@ -78,14 +82,18 @@ def get_level_differences(d, element1_text, element2_text):
                 level_diffs.append(level_diff)
             else:
                 print("无法计算两个节点之间的层级差（没有共同的祖先节点）")
+
     # 返回层级最小元素的下标
-    return level_diffs.index(min(level_diffs))
+    if min(level_diffs) <= depth:
+        return level_diffs.index(min(level_diffs))
+    else:
+        return None
 
 
 if __name__ == "__main__":
 
-    element1_text = "移动侦测报警"
-    element2_text = "com.zwcode.p6slite:id/param_switch"
+    element1_text = "370148"
+    element2_text = "消息"
 
     level_diffs = get_level_differences(d, element1_text, element2_text)
 

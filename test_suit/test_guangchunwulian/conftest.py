@@ -7,6 +7,9 @@ import subprocess
 import time
 import console_ctrl
 from adb_commands import AdbManager as adb, AdbManager
+from router_config import read_config
+
+config = read_config(r'..\..\config\base.ini')
 
 
 # 定义 fixture 来连接 Wi-Fi
@@ -16,7 +19,8 @@ def connect_to_wifi():
     adb.execute_command('H675FIS8JJU8AMWW', adb.LIGHT_UP_SCREEN)
     adb.execute_command('H675FIS8JJU8AMWW', adb.UNLOCK_SCREEN)
     # 手机连接Wi-Fi
-    AdbManager.connect_network('H675FIS8JJU8AMWW', 'Ruision-work-CS5', 'ruision2024@cs')
+    AdbManager.connect_network('H675FIS8JJU8AMWW', config.get('测试Wi-Fi', 'ssid'),
+                               config.get('测试Wi-Fi', 'wifi_password'))
     AdbManager.clear_all_background_apps()
 
 
@@ -30,7 +34,7 @@ def start_recording(test_name):
     # 获取当前日期并格式化为字符串
     current_date = datetime.now().strftime("%Y%m%d")
     # 定义录像文件的路径
-    video_path = f"videos/{current_date}/{test_name}.mp4"
+    video_path = f"D:/videos/{current_date}/{test_name}.mp4"
     # 确保视频目录存在
     os.makedirs(os.path.dirname(video_path), exist_ok=True)
 
@@ -41,7 +45,7 @@ def start_recording(test_name):
         "--record", video_path,  # 直接录制到指定文件
         "--prefer-text",  # 使用文本模式显示日志信息
         "--stay-awake",  # 保持设备唤醒状态
-        "--video-bit-rate=2M",  # 设置最大比特率为 2 Mbps
+        "--video-bit-rate=1M",  # 设置最大比特率为 2 Mbps
         "--no-audio"  # 禁用音频采集
     ]
 
@@ -130,4 +134,3 @@ def clean_and_generate_allure_report():
 
     # 这里是测试函数实际执行的地方
     yield
-

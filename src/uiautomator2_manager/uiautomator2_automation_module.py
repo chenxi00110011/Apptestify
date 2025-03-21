@@ -64,8 +64,8 @@ class UiAutomator2TestDriver:
 
         # 目录名称和文件名，用于截图
         self.did = 'XXX'
-        self.title = {'wakeup_time': '', 'shootName': 'test.jpg', 'sensitivity': ['低', '中', '高']}
-        self.run_parameters = {'rectangle': 0.5}
+        self.title = {'wakeup_time': {}, 'shootName': 'test.jpg', 'sensitivity': ['低', '中', '高'], 'depth': 5}
+        self.run_parameters = {'rectangle': 1.0}
 
         # 显示等待时间，默认1秒
         self.WAIT_TIME = 0.5
@@ -107,7 +107,7 @@ class UiAutomator2TestDriver:
 
         # 启动应用
         device.app_start(self.appPackage, wait=True)
-        adb.set_default_input_method(self.androidDeviceID, 'io.appium.settings/.UnicodeIME')
+        # adb.set_default_input_method(self.androidDeviceID, 'io.appium.settings/.UnicodeIME')
         AdbManager.execute_command(self.androidDeviceID, command=AdbManager.TAP)
 
         return device
@@ -425,30 +425,40 @@ class UiAutomator2TestDriver:
         if content is not None:
             # 拖到屏幕找到对应元素
             self.localize_element(localization_method='text', edges={'text': content}, swap=True)
+
             # 收集所有符合条件的控件
             by = ""
-            if selection_criteria.get("resource-id") == selection_criteria.get("resource-id"):
-                # print('selection_criteria.get("resource-id"):', selection_criteria.get("resource-id"))
-                by = "resource-id"
-                localized_elements = self.localize_element(localization_method=by, edges=selection_criteria)
-            else:
-                by = "text"
-                localized_elements = self.localize_element(localization_method=by, edges=selection_criteria)
+            found = False
+            count = 0
+            while not found and count < 10:
+                count += 1
 
-            if len(localized_elements) > 1:
-                # 找到层级最近元素的下标
-                index = get_level_differences(self.driver, content, selection_criteria[by])
-                result = localized_elements[index]
-            elif len(localized_elements) == 1:
-                result = localized_elements
-            else:
-                raise Exception("未找到对应的元素")
+                if selection_criteria.get("resource-id") == selection_criteria.get("resource-id"):
+                    # print('selection_criteria.get("resource-id"):', selection_criteria.get("resource-id"))
+                    by = "resource-id"
+                    localized_elements = self.localize_element(localization_method=by, edges=selection_criteria)
+                else:
+                    by = "text"
+                    localized_elements = self.localize_element(localization_method=by, edges=selection_criteria)
+
+                if len(localized_elements) >= 1:
+                    # 找到层级最近元素的下标
+                    index = get_level_differences(self.driver, content, selection_criteria[by], self.title.get('depth'))
+
+                    if index is None:
+                        # 向上滑动1/4屏幕
+                        self.driver.swipe_ext('up', scale=0.25, duration=0.1)
+                        continue
+                    else:
+                        return localized_elements[index]
+
+                else:
+                    found = False
 
         else:
             # 未提供定位元素的锚点，则点击第一个元素
             localized_elements = self.localize_element(localization_method="resource-id", edges=selection_criteria)
             result = localized_elements
-        return result
 
     def click_variable_text(self, pattern: str):
         # 用于定位文本内容可变的元素，例如蓝牙配网里的DID等
