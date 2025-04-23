@@ -9,7 +9,7 @@ import os
 from datetime import datetime, timedelta
 
 LOG_FILE_PATH = 'daily_restart_log.txt'
-REBOOT_INTERVAL = timedelta(hours=3)  # 设置重启间隔为1小时
+REBOOT_INTERVAL = timedelta(hours=1)  # 设置重启间隔为1小时
 config = read_config(r'..\..\config\base.ini')
 deviceId = 'H675FIS8JJU8AMWW'
 
@@ -21,7 +21,7 @@ def restart_device():
 	print("正在重启设备...")
 	adb.execute_command(deviceId, adb.REBOOT)
 	print("手机已重启，等待手机重新上线...")
-	time.sleep(120)
+	time.sleep(90)
 
 
 def should_restart_and_update():
@@ -52,10 +52,10 @@ def should_restart_and_update():
 def connect_to_wifi():
 	# 重启手机，点亮屏幕和解锁
 	should_restart_and_update()
-	adb.execute_command('H675FIS8JJU8AMWW', adb.LIGHT_UP_SCREEN)
-	adb.execute_command('H675FIS8JJU8AMWW', adb.UNLOCK_SCREEN)
+	adb.execute_command(deviceId, adb.LIGHT_UP_SCREEN)
+	adb.execute_command(deviceId, adb.UNLOCK_SCREEN)
 	# 手机连接Wi-Fi
-	AdbManager.connect_network('H675FIS8JJU8AMWW', config.get('测试Wi-Fi', 'ssid'),
+	AdbManager.connect_network(deviceId, config.get('测试Wi-Fi', 'ssid'),
 							   config.get('测试Wi-Fi', 'wifi_password'))
 	AdbManager.clear_all_background_apps()
 

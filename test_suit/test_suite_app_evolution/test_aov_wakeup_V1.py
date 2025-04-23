@@ -9,22 +9,22 @@ import pytest
 import uiautomator2_extended
 from datetime import datetime
 
-
 # 需要唤醒的设备，填写APP上的设备名称
 parameter = [
-	'000043',
-	'000034',
-	'000022',
-	'000033',
-	'000024',
-	'000025',
-	'000018',
-	'000028',
-	'000039',
+	# '000116',
+	'000055',
+	'000124',
+	# '000084',
+	# '000083',
+	# '000024',
+	# '000025',
+	# '000018',
+	# '000028',
+	# '000039',
 ]
 
 # 预览时长，单位秒
-timePreview = 8
+timePreview = 30
 
 
 @pytest.mark.aov_v1
@@ -35,7 +35,7 @@ def test_aov_wakeup(name):
 	# 启动APP
 	app = uiautomator2_extended.Uiautomator2SophisticatedExecutor('H675FIS8JJU8AMWW', '睿博士')
 	time.sleep(20)
-	app.go_to_page("首页", '13638601129', 'cx123456')
+	app.go_to_page("首页", '2389958090@qq.com', 'yu123456')
 	
 	app.WAIT_TIME = 0
 	app.go_to_page('直播', name)
@@ -58,3 +58,4 @@ def test_aov_wakeup(name):
 	
 	time.sleep(timePreview)
 	app.app_stop_()
+	time.sleep(10)
